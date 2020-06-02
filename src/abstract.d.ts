@@ -1,5 +1,5 @@
-import Iris from './iris';
-import Component from './component';
+import Iris from './core/iris';
+import Component from './core/component';
 
 export {};
 

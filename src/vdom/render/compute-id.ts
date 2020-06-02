@@ -1,4 +1,4 @@
-function computeId(props) {
+function computeId(props: IIterable<any>) {
   const id = 
     (props && props.id ? props.id : '') + 
     (props && props.key ? props.key : '');

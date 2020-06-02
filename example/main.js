@@ -142,18 +142,10 @@ class App extends Iris.Component {
 
   state = {
     todos: [
-      // {
-      //   title: 'first',
-      //   done: false,
-      // },
-      // {
-      //   title: 'second',
-      //   done: true,
-      // },
-      // {
-      //   title: 'third',
-      //   done: false,
-      // },
+      {
+        title: 'first',
+        done: false,
+      },
     ],
   };
 
@@ -166,6 +158,18 @@ class App extends Iris.Component {
     this.setState({
       todos,
     });
+  }
+
+  onInit() {
+    this.setState({
+      todos: [
+        ...this.state.todos,
+        {
+          title: 'foo',
+          done: false
+        }
+      ]
+    })
   }
 
   render() {

@@ -3,7 +3,7 @@ var path = require('path');
 var { TsConfigPathsPlugin } = require('awesome-typescript-loader');
 
 module.exports = {
-  entry: './src/iris',
+  entry: './src/index',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'iris.js',

@@ -1,28 +1,23 @@
-import {
-  isObject,
-  isString,
-  isInstantiable,
-  isArray,
-  isNotEmptyObj,
-  arrForEach,
-} from '../util/helpers';
+import { isObject, isString, isInstantiable, isArray, isNotEmptyObj, arrForEach } from '@/util/helpers';
 
-import {
-  addListener
-} from './util/listeners';
+import { addListener } from '@/vdom/util/listeners';
 
-import { NOKEY } from './diff/operations';
+import { NOKEY } from '@/vdom/diff/operations';
 
-import Iris from '../iris';
+import Iris from '@/core/iris';
 
-import modifyRender from './render/modify-render';
+import modifyRender from '@/vdom/render/modify-render';
 
-import computeId from './render/compute-id';
+import computeId from '@/vdom/render/compute-id';
 
-import Component from '../component';
+import Component from '@/core/component';
+import hook from '@/util/hooks';
 
-var components: any = [];
-
+/**
+ * Virtual Node a.k.a Virtual Tree
+ *
+ * The core of Iris.
+ */
 class VNode {
   tagName: string | TInstantiable<Component>;
   props: IIterable<any> | null;
@@ -31,9 +26,15 @@ class VNode {
   parent?: VNode;
 
   key?: string;
-  instance?: Component;
+  component?: Component;
   count: number;
 
+  /**
+   * VNodes can represent both components
+   * and default html elements.
+   * That's why we need to detect whether it needs
+   * a component instance attached to it or not.
+   */
   constructor(tagName: string | TInstantiable<Component>, props: IIterable<any>, children: VNode[]) {
     const id = computeId(props);
 
@@ -44,50 +45,62 @@ class VNode {
       const Constructor: TInstantiable<Component> = tagName as TInstantiable<Component>;
 
       if (!id) {
-        this.instance = new Constructor(props);
+        this.component = new Constructor(props);
+        hook(this.component, 'onInit');
       } else {
-        const matchComponent = components.find(
-          (_component: Component) => _component.id === id
-        );
+        const matchComponent = Iris.components.find(id);
 
         if (matchComponent) {
-          this.instance = matchComponent.instance as Component;
-          this.instance.redefineProps(props);
+          this.component = matchComponent.instance as Component;
+          this.component.updateProps(props);
         }
 
-        if (!this.instance) {
-          this.instance = new Constructor(props);
+        if (!this.component) {
+          this.component = new Constructor(props);
 
-          components.push({
-            instance: this.instance,
+          /**
+           * This may cause some errors.
+           * => needs to be overthought.
+           */
+          hook(this.component, 'onInit');
+
+          Iris.components.push({
+            instance: this.component,
             id,
           });
         }
       }
 
-      this.instance.render = modifyRender(this.instance.render, id);
+      /**
+       * Modifying the render function provided by the user.
+       * Each component declaration gets a specific computed id
+       * based on its path and eventually key.
+       */
+      this.component.render = modifyRender(this.component.render, id);
 
-      this.instance.lastRender = this.instance.render();
-      this.instance.vNode = this;
+      this.component.lastRender = this.component.render();
+      this.component.vNode = this;
 
       /**
        * Modifying properties if tagName is a Component.
        * tagName then becomes the wrapper of Component.render()
-       * and children are its rendered children. 
+       * and children are its rendered children.
        */
-      tagName = this.instance.lastRender.tagName;
-      children = this.instance.lastRender.children as VNode[];
+      tagName = this.component.lastRender.tagName;
+      children = this.component.lastRender.children as VNode[];
     }
 
     this.tagName = tagName;
     this.props = isObject(props) ? props : {};
-    this.children =
-      children ||
-      (!isNotEmptyObj(this.props) &&
-        ((isString(props) && [props]) || (isArray(props) && props))) ||
-      [];
+
+    this.children = children || (!isNotEmptyObj(this.props) && ((isString(props) && [props]) || (isArray(props) && props))) || [];
+
     this.key = props ? props.key : void NOKEY;
 
+    /**
+     * Counting children to be able
+     * to identify them whithin a vnode.
+     */
     var count = 0;
 
     arrForEach(this.children, (item: VNode, index: number) => {
@@ -98,16 +111,24 @@ class VNode {
       }
       count++;
     });
-    
+
     this.count = count;
 
-    if (this.instance) {
+    if (this.component) {
       if (!this.parent) {
         this.parent = Iris.vApp;
       }
 
+      /**
+       * So-called chain of child-components.
+       * Serves to find child-parent relations.
+       */
       var vChildComponents: Component[] = [];
 
+      /**
+       * Iterates through all the children and nested children of ELEMENTS
+       * skiping the children of the components.
+       */
       const iterateChilrenOf = (iteration: any) => {
         for (var i = 0; i < iteration.children.length; i++) {
           if (iteration.children[i].instance) {
@@ -120,25 +141,52 @@ class VNode {
         }
       };
 
+      /**
+       * Start iteration.
+       */
       iterateChilrenOf(this);
 
+      /**
+       * All matches are the children of this vNode.
+       */
       for (var i = 0; i < vChildComponents.length; i++) {
         vChildComponents[i].parent = this;
       }
     }
+
+    /**
+     * The component is ready to be rendered.
+     */
+    if (this.component) {
+      this.component.$prepared = true;
+    }
   }
 
+  /**
+   * vNode2Element
+   */
   render(): Element {
+    /**
+     * We know that tagName is now a string, but typescript doesn't.
+     */
     const $root = document.createElement(this.tagName as string);
 
-    if (this.instance) {
-      this.instance.$root = $root;
+    if (this.component) {
+      this.component.$root = $root;
 
+      /**
+       * There's only one case if component doesn't have a parent.
+       * If it's an app itself.
+       */
       if (!this.parent && Iris.vApp) {
         this.parent = Iris.vApp;
       }
+
     } else {
-      for (const [key, value] of Object.entries(this.props || {})) {
+      /**
+       * If an attribute starts with 'on', it's an event.
+       */
+      for (const [key, value] of Object.entries(this.props as IIterable<any>)) {
         if (key.startsWith('on')) {
           addListener($root, key.replace('on', '').toLocaleLowerCase(), value);
         } else {
@@ -147,11 +195,11 @@ class VNode {
       }
     }
 
+    /**
+     * Rendering and appending the children.
+     */
     arrForEach(this.children, (child: VNode | string) => {
-      const childDom =
-        child instanceof VNode
-          ? child.render()
-          : document.createTextNode(child);
+      const childDom = child instanceof VNode ? child.render() : document.createTextNode(child);
       $root.appendChild(childDom);
     });
 
@@ -159,13 +207,19 @@ class VNode {
   }
 }
 
+/**
+ * Hyperscript.
+ * @param tagName string | Component
+ * @param props - { key: value }
+ * @param children [string | Component]
+ */
 function createElement(tagName: string | TInstantiable<Component>, props: IIterable<any>, ...children: VNode[]): VNode {
   const hasChildren = children.length > 0;
-  const rawChildren = hasChildren ? [].concat(...children as any) : [];
+  const rawChildren = hasChildren ? [].concat(...(children as any)) : [];
 
   return new VNode(tagName, props, rawChildren);
 }
 
-export default VNode
+export default VNode;
 
 export { createElement };

@@ -1,16 +1,16 @@
-import { isString, isObject, objForEach, arrForEach, setAttr, toArray } from '../util/helpers';
-import { REPLACE, REORDER, PROPS, TEXT, NOKEY } from './diff/operations';
+import { isString, isObject, objForEach, arrForEach, setAttr, toArray } from '@/util/helpers';
+import { REPLACE, REORDER, PROPS, TEXT, NOKEY } from '@/vdom/diff/operations';
 
-function patch(node, patches) {
+function patch(node: any, patches: any) {
   const walker = { index: 0 };
   dfsWalk(node, walker, patches);
 }
 
-function dfsWalk(node, walker, patches) {
+function dfsWalk(node: any, walker: any, patches: any) {
   const currentPatches = patches[walker.index];
 
   node.childNodes &&
-    arrForEach(node.childNodes, (item) => {
+    arrForEach(node.childNodes, (item: any) => {
       walker.index++;
       dfsWalk(item, walker, patches);
     });
@@ -18,8 +18,8 @@ function dfsWalk(node, walker, patches) {
   currentPatches && applyPatches(node, currentPatches);
 }
 
-function applyPatches(node, currentPatches) {
-  arrForEach(currentPatches, (item) => {
+function applyPatches(node: any, currentPatches: any) {
+  arrForEach(currentPatches, (item: any) => {
     switch (item.type) {
       case REPLACE:
         const nNode = isString(item.node) ? document.createTextNode(item.node) : item.node.render();
@@ -44,8 +44,8 @@ function applyPatches(node, currentPatches) {
   });
 }
 
-function setProps(node, props) {
-  objForEach(props, (key) => {
+function setProps(node: any, props: any) {
+  objForEach(props, (key: any) => {
     if (props[key] === void NOKEY) {
       node.removeAttribute(key);
     } else {
@@ -54,18 +54,18 @@ function setProps(node, props) {
   });
 }
 
-function reorderChildren(node, moves) {
+function reorderChildren(node: any, moves: any) {
   const staticNodeList = toArray(node.childNodes);
-  const maps = {};
+  const maps: any = {};
 
-  arrForEach(staticNodeList, (node) => {
+  arrForEach(staticNodeList, (node: any) => {
     if (node.nodeType === 1) {
-      const key = node.getAttribute('key');
+      const key = node.getAttribute('key') as string;
       key && (maps[key] = node);
     }
   });
 
-  arrForEach(moves, (move) => {
+  arrForEach(moves, (move: any) => {
     const index = move.index;
     if (move.type === 0) {
       if (!node.childNodes[index]) return;

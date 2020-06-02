@@ -1,7 +1,7 @@
-import { VNode } from "../vnode";
+import VNode from '@/vdom/vnode';
 
 function isComponent(vNode: VNode) {
-  return !!vNode.instance;
+  return !!vNode.component;
 }
 
-export { isComponent }
+export { isComponent };

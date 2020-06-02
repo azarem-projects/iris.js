@@ -6,8 +6,6 @@
  *                  - moves is a list of actions that telling how to remove and insert
  */
 
-import { VNode } from '../vnode';
-
 function diff(oldList: any, newList: any, key: any) {
   var oldMap = makeKeyIndexAndFree(oldList, key);
   var newMap = makeKeyIndexAndFree(newList, key);

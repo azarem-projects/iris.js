@@ -1,8 +1,8 @@
-import { isString, objForEach, arrForEach, isNotEmptyObj } from '../../util/helpers';
-import { REPLACE, REORDER, PROPS, TEXT } from './operations';
-import listDiff from './list-diff';
-import { isComponent } from '../util/helpers';
-import { VNode } from '../vnode';
+import { isString, objForEach, arrForEach, isNotEmptyObj } from '@/util/helpers';
+import { REPLACE, REORDER, PROPS, TEXT } from '@/vdom/diff/operations';
+import listDiff from '@/vdom/diff/list-diff';
+import { isComponent } from '@/vdom/util/helpers';
+import VNode from '@/vdom/vnode';
 
 function diff(oTree: VNode, nTree: VNode) {
   let index = 0;
