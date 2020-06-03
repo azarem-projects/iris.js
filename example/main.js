@@ -4,7 +4,7 @@ class TitleComponent extends Iris.Component {
   render() {
     return (
       <div>
-        <h2>I am a todo app</h2>
+        <h2>I am a todo app { this.$store.state.foo } </h2>
       </div>
     );
   }
@@ -19,6 +19,10 @@ class CreateTodoComponent extends Iris.Component {
     this.setState({
       title: event.target.value,
     });
+
+    this.$store.setState({
+      foo: event.target.value
+    })
   }
 
   handleClick() {
@@ -38,7 +42,7 @@ class CreateTodoComponent extends Iris.Component {
             this.handleClick();
           }}
         >
-          Add
+          { this.$store.state.foo } 
         </button>
       </div>
     );
@@ -108,7 +112,25 @@ class TodosListComponent extends Iris.Component {
   }
 }
 
-const h = Iris.createElement;
+class Button extends Iris.Component {
+  beforeRender(el) {
+    el.style.cssText = `
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 50%;
+      outline: none;
+    `;
+  }
+
+  render() {
+    return (
+      <button className="stylized-button" onClick={ this.props.onClick }>
+        { this.props.title }
+      </button>
+    )
+  }
+}
 
 class App extends Iris.Component {
   done(i) {
@@ -163,6 +185,10 @@ class App extends Iris.Component {
   }
 
   onInit() {
+    this.$store.setState({
+      foo: 'baz'
+    })
+
     this.setState({
       todos: [
         ...this.state.todos,
@@ -190,13 +216,8 @@ class App extends Iris.Component {
         >
           Change something..
         </button>
-        <button
-          onClick={() => {
-            this.handleChange();
-          }}
-        >
-          Change bool
-        </button>
+        
+        <Button onClick={ () => { this.handleChange() } } title={'Change bool'} />
 
         <TitleComponent />
         <CreateTodoComponent />
@@ -211,4 +232,13 @@ class App extends Iris.Component {
   }
 }
 
-Iris.mount(<App />, '#root');
+Iris.install(
+  new StateManager({
+    foo: 'bar'
+  })
+)
+
+Iris.mount(
+  <App />,
+  '#root'
+);

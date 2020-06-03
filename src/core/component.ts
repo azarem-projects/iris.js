@@ -26,6 +26,7 @@ abstract class Component {
   parent?: VNode;
 
   $prepared: boolean = false;
+  $onInitFired: boolean = false;
 
   /**
    * Hyperscript.
@@ -47,7 +48,7 @@ abstract class Component {
   setState(newState: IIterable<any>) {
     this.state = Object.assign(this.state, newState);
 
-    if (this.$prepared) {
+    if (this.$prepared && this.$onInitFired) {
       this.forceUpdate();
     }
   }
@@ -70,6 +71,17 @@ abstract class Component {
    */
   updateProps(props: IIterable<any>) {
     this.props = props;
+  }
+
+  /**
+   * Extending "this"-scope of the component.
+   * 
+   * @param item 
+   */
+  extendScope(item: IIterable<any>) {
+    for (const [key, value] of Object.entries(item)) {
+      (this as IIterable<any>)[key] = value;
+    }
   }
 
   /**

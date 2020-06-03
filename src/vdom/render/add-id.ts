@@ -1,18 +1,20 @@
+import { getFirstGroup } from "@/util/regex";
+
 var id = 0;
 
 function addId(str: string, prefix: string) {
-  const components = str.match(/\w*Component\b/g);
-  
+  const components = getFirstGroup(/(?=Iris.createElement.\s*?(\w+))/g, str);
+
   if (components) {
     for (var i = 0; i < components.length; i++) {
       const ID = id++;
 
-      str = str.replace(`${components[i]}, null`, `${components[i]},{id:'${prefix}${ID}'}`);
+      str = str.replace(`${components[i]}, null`, `${components[i]},{_id:'${prefix}${ID}'}`);
     }
     for (var i = 0; i < components.length; i++) {
       const ID = id++;
-      
-      str = str.replace(`${components[i]}, {`, `${components[i]},{id:'${prefix}${ID}',`);
+
+      str = str.replace(`${components[i]}, {`, `${components[i]},{_id:'${prefix}${ID}',`);
     }
   }
 

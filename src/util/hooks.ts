@@ -1,7 +1,11 @@
 import Component from '@/core/component';
-import getProto from './get-proto';
+import getProto from '@/util/get-proto';
 
-function hook(component: Component, hook: string) {
+interface IHookOptions {
+  arguments: any[];
+}
+
+function hook(component: Component, hook: string, options?: IHookOptions) {
   const proto = getProto(component);
 
   if (!proto) { return; }
@@ -9,8 +13,15 @@ function hook(component: Component, hook: string) {
   const event = proto[hook];
 
   if (!event) { return; }
+  
+  (event as (...args: []) => void).apply(component, options?.arguments as [] || []);
 
-  event.call(component);
+  (component as IIterable<any>)[`$${hook}Fired`] = true;
 }
+
+const ON_INIT = 'onInit';
+const BEFORE_RENDER = 'beforeRender';
+
+export { ON_INIT, BEFORE_RENDER };
 
 export default hook;

@@ -3,9 +3,11 @@
  *  framework for creating user interfaces.
  */
 import VNode, { createElement } from '@/vdom/vnode';
+import Plugin from '@/plugins/plugin';
 import Component from '@/core/component';
 import Components from '@/static/components';
 import mount from '@/core/mount';
+import install from '@/plugins/install';
 
 /**
  * The core of Iris.
@@ -17,11 +19,26 @@ class Iris {
   static components: Components;
 
   /**
-   * Component class for inheritance
+   * Component class for inheritance.
+   * 
    * @example class App extends Iris.Component {
    * }
    */
   static Component: typeof Component;
+
+  /**
+   * Plugin class for inheritance.
+   * @example class Store extends Iris.Plugin {
+   * }
+   */
+  static Plugin: typeof Plugin;
+  static install: (plugin: Plugin) => void;
+
+  /**
+   * Properties and functions
+   * to inject in this reference for components.
+   */
+  static toInject: IIterable<any> = {};
 
   /**
    * The accessor to hyperscript.
@@ -41,11 +58,16 @@ class Iris {
   /**
    * Mount the application.
    */
-  static mount: (vApp: VNode, selector: string) => VNode;
+  static mount: (vApp: VNode, target: string | Element) => VNode;
 }
 
 Iris.components = new Components();
+
 Iris.Component = Component;
+
+Iris.Plugin = Plugin;
+Iris.install = install;
+
 Iris.createElement = createElement;
 Iris.mount = mount;
 
