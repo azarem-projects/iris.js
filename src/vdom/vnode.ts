@@ -130,6 +130,10 @@ class VNode {
        * skiping the children of the components.
        */
       const iterateChilrenOf = (iteration: any) => {
+        if (!iteration.children) {
+          return;
+        }
+
         for (var i = 0; i < iteration.children.length; i++) {
           if (iteration.children[i].instance) {
             vChildComponents.push(iteration.children[i]);

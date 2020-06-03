@@ -64,8 +64,7 @@ class TodoComponent extends Iris.Component {
               this.done();
             }}
           >
-            {' '}
-            {this.props.done}{' '}
+            {this.props.done}
           </button>
           <button
             onClick={() => {
@@ -109,6 +108,8 @@ class TodosListComponent extends Iris.Component {
   }
 }
 
+const h = Iris.createElement;
+
 class App extends Iris.Component {
   done(i) {
     const todos = this.state.todos;
@@ -141,6 +142,7 @@ class App extends Iris.Component {
   }
 
   state = {
+    bool: true,
     todos: [
       {
         title: 'first',
@@ -172,6 +174,12 @@ class App extends Iris.Component {
     })
   }
 
+  handleChange() {
+    this.setState({
+      bool: !this.state.bool
+    })
+  }
+
   render() {
     return (
       <div>
@@ -182,9 +190,22 @@ class App extends Iris.Component {
         >
           Change something..
         </button>
+        <button
+          onClick={() => {
+            this.handleChange();
+          }}
+        >
+          Change bool
+        </button>
+
         <TitleComponent />
         <CreateTodoComponent />
-        <TodosListComponent todos={this.state.todos} />
+
+        {
+          this.state.bool
+            ? <TodosListComponent todos={this.state.todos} />
+            : <span></span>
+        }
       </div>
     );
   }
