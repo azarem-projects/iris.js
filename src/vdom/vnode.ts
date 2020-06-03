@@ -66,8 +66,8 @@ class VNode {
 
       if (!_id) {
         this.component = new Constructor(props);
-      } else {
-        const matchComponent = Iris.components.find(_id);
+      } else {        
+        const matchComponent = Iris.components.find(component => component.id === _id);
 
         if (matchComponent) {
           this.component = matchComponent.instance as Component;
@@ -81,6 +81,8 @@ class VNode {
           });
         }
       }
+
+      // console.log(Iris.components);
 
       this.component.extendScope(Iris.toInject);
 

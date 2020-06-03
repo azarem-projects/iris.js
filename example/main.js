@@ -1,10 +1,14 @@
 /** @jsx Iris.createElement */
 
 class TitleComponent extends Iris.Component {
+  state = {
+    r: Math.random()
+  }
+
   render() {
     return (
       <div>
-        <h2>I am a todo app { this.$store.state.foo } </h2>
+        <h2>I am a todo app { this.$store.state.foo } { this.state.r } </h2>
       </div>
     );
   }
@@ -63,6 +67,7 @@ class TodoComponent extends Iris.Component {
       <div>
         <div style='width: 200px; justify-content: space-between; display: flex;'>
           <h3> {this.props.title} </h3>
+          <TitleComponent />
           <button
             onClick={() => {
               this.done();

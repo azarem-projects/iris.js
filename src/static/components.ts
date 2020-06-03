@@ -2,7 +2,7 @@ import Component from "@/core/component";
 
 interface IComponent {
   instance: Component;
-  id: number;
+  id: string;
 }
 
 class Components {
@@ -16,8 +16,21 @@ class Components {
     this.items.push(component);
   }
 
-  find(id: number): IComponent | undefined {
-    return this.items.find(component => component.id === id);
+  find(predicate: (value: IComponent, index: number, obj: IComponent[]) => unknown): IComponent | undefined {
+    return this.items.find(predicate);
+  }
+
+  remove(id: string) {
+    const items = this.items.filter(item => item.id.includes(id));
+
+    console.log(Object.assign([], this.items))
+
+    for (var i = 0; i < items.length; i++) {
+      const index = this.items.indexOf(items[i]) 
+      this.items.splice(index, 1);
+    }
+
+    console.log(Object.assign([], this.items))
   }
 }
 
