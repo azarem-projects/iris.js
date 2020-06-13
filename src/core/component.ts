@@ -16,7 +16,7 @@ abstract class Component {
    * Everything might be undefined.
    */
   id?: string;
-  props?: IIterable<any>;
+  props?: IIterable<any> | undefined | null;
   state?: IIterable<any>;
 
   lastRender?: VNode;
@@ -31,7 +31,7 @@ abstract class Component {
   /**
    * Hyperscript.
    */
-  abstract render(): VNode;
+  abstract render(h?: THyperscript): VNode;
 
   /**
    * Hooks.
@@ -57,19 +57,23 @@ abstract class Component {
    * Force update as soon as the state gets updated.
    */
   forceUpdate() {
+    console.time('update');
+
     const updated = this.render();
     const patches = diff(this.lastRender as VNode, updated);
 
     this.lastRender = updated;
 
     patch(this.$root, patches);
+
+    console.timeEnd('update');
   }
 
   /**
    * Updating props every time the component
    * needs to be re-rendered.
    */
-  updateProps(props: IIterable<any>) {
+  updateProps(props: IIterable<any> | undefined | null) {
     this.props = props;
   }
 

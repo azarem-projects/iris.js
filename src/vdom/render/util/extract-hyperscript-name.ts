@@ -5,7 +5,7 @@ function extractHyperscriptName(str: string) {
   const resultFromArgs = str.substring(i_0, i_1).replace('render(', '');
 
   if (resultFromArgs) {
-    return resultFromArgs;
+    return resultFromArgs.replace('return function(', '');
   }
   
   const j_0 = str.indexOf('return ', i_0);

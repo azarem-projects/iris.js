@@ -17,6 +17,30 @@ class Album extends Iris.Component {
   }
 }
 
+class Greeting extends Iris.Component {
+  render() {
+    return (
+      <div>
+        <div>
+          Hello, world!
+        </div>
+      </div>
+    )
+  }
+}
+
+class About extends Iris.Component {
+  render() {
+    return (
+      <div>
+        <div>
+          About
+        </div>
+      </div>
+    )
+  }
+}
+
 class App extends Iris.Component {
   async loadData() {
     const result = await this.$ajax.request({
@@ -24,15 +48,13 @@ class App extends Iris.Component {
       url: 'https://jsonplaceholder.typicode.com/comments'
     })
 
-    console.log(result);
-
     this.setState({
       albums: [...result.data]
     })
   }
 
   onInit() {
-    this.loadData()
+    // this.loadData()
   }
 
   remove(id) {
@@ -53,14 +75,13 @@ class App extends Iris.Component {
 
   render() {
     return (
-      <div>
+      <div className="THIS">
         <button onClick={() => { this.loadData() }}>Load data</button>
+        <this.$router.View />
         <div>
-          { this.state.albums.map(album => (
-
+          { this.state.albums.map(album => 
             <Album key={album.id} url={album.url} title={album.body} />
-
-          )) }
+          ) }
         </div>
       </div>
     )
@@ -75,6 +96,19 @@ Iris.install(
 
 Iris.install(
   new Ajax()
+)
+
+Iris.install(
+  new Router([
+    {
+      component: Greeting,
+      path: '/greeting'
+    },
+    {
+      component: About,
+      path: '/about'
+    },
+  ])
 )
 
 Iris.mount(

@@ -3,6 +3,8 @@ import Component from './core/component';
 
 import StateManager from './plugins/examples/state-manager';
 import Ajax from './plugins/examples/ajax';
+import Router from './plugins/examples/router';
+import VNode from './vdom/vnode';
 
 export {};
 
@@ -11,6 +13,7 @@ declare global {
     Iris: Iris;
     StateManager: typeof StateManager;
     Ajax: typeof Ajax;
+    Router: typeof Router;
   }
 
   interface IIterable<T> {
@@ -18,4 +21,6 @@ declare global {
   }
 
   type TInstantiable<T> = new (arg?: any) => T;
+  
+  type THyperscript = (tagName: string | TInstantiable<Component>, props?: IIterable<any> | null | {}, ...children: (VNode | string)[]) => VNode;
 }

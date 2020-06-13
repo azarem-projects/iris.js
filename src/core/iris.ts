@@ -8,11 +8,17 @@ import Component from '@/core/component';
 import Components from '@/static/components';
 import mount from '@/core/mount';
 import install from '@/plugins/install';
+import FunctionCache from '@/core/function-cache';
 
 /**
  * The core of Iris.
  */
 class Iris {
+  /**
+   * Caching the functions by their arguments and results.
+   */
+  static cache: FunctionCache;
+
   /**
    * The storage of instantiated components.
    */
@@ -20,7 +26,7 @@ class Iris {
 
   /**
    * Component class for inheritance.
-   * 
+   *
    * @example class App extends Iris.Component {
    * }
    */
@@ -45,8 +51,8 @@ class Iris {
    */
   static createElement: (
     tagName: string | TInstantiable<Component>,
-    props: IIterable<any>,
-    children: any
+    props?: IIterable<any> | null | {},
+    children?: any
   ) => VNode;
 
   /**
@@ -61,7 +67,11 @@ class Iris {
   static mount: (vApp: VNode, target: string | Element) => VNode;
 }
 
-Iris.components = new Components();
+/**
+ * Initializing the inner systems.
+ */
+Iris.cache = new FunctionCache();       // Caching functions.
+Iris.components = new Components();     // Storing components' states.
 
 Iris.Component = Component;
 

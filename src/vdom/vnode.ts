@@ -18,6 +18,8 @@ import modifyRender from '@/vdom/render/modify-render';
 import Component from '@/core/component';
 import hook, { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
 import extractKeyIdPair from './util/ids-keys';
+import getProto from '@/util/get-proto';
+import getPrototype from '@/util/get-prototype';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -44,8 +46,8 @@ class VNode {
    */
   constructor(
     tagName: string | TInstantiable<Component>,
-    props: IIterable<any>,
-    children: VNode[]
+    props?: IIterable<any> | null | {},
+    children?: VNode[]
   ) {
     /**
      * To identify components and their instances
@@ -94,9 +96,21 @@ class VNode {
        * Each component declaration gets a specific computed id
        * based on its path and eventually key.
        */
-      this.component.render = modifyRender(this.component.render, _id, key);
 
-      this.component.lastRender = this.component.render.apply(this.component, <[]> <any> [Iris.createElement]);
+      /**
+       * Let's try to cache it!
+       * 
+       * Cache works pretty well, but not for this function.
+       * It's just not about caching => needs to be redone.
+       */
+      if (!getPrototype(tagName).render.toString().includes('___mod')) {
+        getPrototype(tagName).render = modifyRender(this.component.render, _id, key);
+      }
+
+      this.component.lastRender = this.component.render.apply(
+        this.component,
+        <[]> <any> [Iris.createElement]
+      );
 
       this.component.vNode = this;
 
@@ -110,14 +124,14 @@ class VNode {
     }
 
     this.tagName = tagName;
-    this.props = isObject(props) ? props : {};
+    this.props = isObject(props as IIterable<any>) ? (props as IIterable<any>) : {};
 
     this.children =
-      children ||
+      (children as []) ||
       (!isNotEmptyObj(this.props) && ((isString(props) && [props]) || (isArray(props) && props))) ||
       [];
 
-    this.key = props ? props.key : void NOKEY;
+    this.key = this.props ? this.props.key : void NOKEY;
 
     /**
      * Counting children to be able
@@ -193,12 +207,11 @@ class VNode {
 
     if (this.isComponent()) {
       (this.component as Component).$root = $root;
-
       /**
        * There's only one case if component doesn't have a parent.
        * If it's an app itself.
        */
-      if (!(this.component as Component).parent && Iris.vApp) {
+      if (!(this.component as Component).parent && Iris.vApp.component) {
         (this.component as Component).parent = Iris.vApp.component;
       }
     }
@@ -263,10 +276,10 @@ class VNode {
  */
 function createElement(
   tagName: string | TInstantiable<Component>,
-  props: IIterable<any>,
+  props?: IIterable<any> | null | {},
   ...children: VNode[]
 ): VNode {
-  const hasChildren = children.length > 0;
+  const hasChildren = (children || []).length > 0;
   const rawChildren = hasChildren ? [].concat(...(children as any)) : [];
 
   return new VNode(tagName, props, rawChildren);
