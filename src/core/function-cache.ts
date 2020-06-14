@@ -1,13 +1,4 @@
 
-interface IVariation {
-  args: any[];
-  result: any;
-}
-
-interface ICached {
-  key: string | number;
-  variations: IVariation[];
-}
 
 function arraysMatch(arr1: any[], arr2: any[]) {
 	if (arr1.length !== arr2.length) return false;

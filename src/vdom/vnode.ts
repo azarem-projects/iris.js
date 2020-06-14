@@ -16,7 +16,9 @@ import Iris from '@/core/iris';
 import modifyRender from '@/vdom/render/modify-render';
 
 import Component from '@/core/component';
-import hook, { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
+
+import { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
+
 import extractKeyIdPair from './util/ids-keys';
 import getPrototype from '@/util/get-prototype';
 import extend from './util/extend';
@@ -63,7 +65,7 @@ class VNode {
      */
     if (isInstantiable(tagName)) {
       const Constructor: TInstantiable<Component> = tagName as TInstantiable<Component>;
-      
+
       /**
        * Extending the component's prototype,
        * considering, that it's not inheriting from Iris.Component.
@@ -81,8 +83,10 @@ class VNode {
        */
       if (!_id) {
         this.component = new Constructor();
-      } else {        
-        const matchComponent = Iris.components.find(component => component.key === key && component.id === _id);
+      } else {
+        const matchComponent = Iris.components.find(
+          (component) => component.key === key && component.id === _id
+        );
 
         if (matchComponent) {
           this.component = matchComponent.instance as Component;
@@ -92,13 +96,13 @@ class VNode {
           Iris.components.push({
             instance: this.component,
             id: _id,
-            key: key
+            key: key,
           });
         }
       }
-      
+
       this.component.setProps(props);
-      
+
       this.component.extendScope(Iris.toInject);
 
       /**
@@ -107,13 +111,15 @@ class VNode {
        * based on its path and eventually key.
        */
       if (!getPrototype(Constructor).render.toString().includes('___mod')) {
-        getPrototype(Constructor).render = modifyRender(this.component.render, _id, key, { __id: _id, _key: key });
+        getPrototype(Constructor).render = modifyRender(this.component.render, _id, key, {
+          __id: _id,
+          _key: key,
+        });
       }
 
-      this.component.lastRender = this.component.render.apply(
-        this.component,
-        <[]> <any> [Iris.createElement]
-      ) as VNode;
+      this.component.lastRender = this.component.render.apply(this.component, <[]>(
+        (<any>[Iris.createElement])
+      )) as VNode;
 
       this.component.vNode = this;
 
@@ -170,7 +176,9 @@ class VNode {
           const { parent } = this.props;
 
           if (parent) {
-            const match = Iris.components.find(component => component.id === parent._id && component.key === parent.key);
+            const match = Iris.components.find(
+              (component) => component.id === parent._id && component.key === parent.key
+            );
 
             if (match) {
               (this.component as Component).parent = match.instance;
@@ -210,7 +218,7 @@ class VNode {
 
       if (child instanceof VNode) {
         if (child.isComponent()) {
-          hook((child.component as any), BEFORE_RENDER, { arguments: [childDom] });
+          Iris.hook(child.component as any, BEFORE_RENDER, { arguments: [childDom] });
         }
       }
 
@@ -219,7 +227,7 @@ class VNode {
 
     if (this.isComponent()) {
       if (!(this.component as any).$onInitFired) {
-        hook((this.component as any), ON_INIT);
+        Iris.hook(this.component as any, ON_INIT);
 
         (this.component as any).$onInitFired = true;
       }

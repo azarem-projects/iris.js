@@ -10,6 +10,7 @@ import mount from '@/core/mount';
 import install from '@/plugins/install';
 import FunctionCache from '@/core/function-cache';
 import Empty from '@/static/empty';
+import hook from '@/util/hooks';
 
 /**
  * The core of Iris.
@@ -30,7 +31,7 @@ class Iris {
    *
    * @example class App extends Iris.Component {
    * }
-   * 
+   *
    * @deprecated
    */
   static Component: typeof Component;
@@ -39,7 +40,7 @@ class Iris {
    * Plugin class for inheritance.
    * @example class Store extends Iris.Plugin {
    * }
-   * 
+   *
    * @deprecated
    */
   static Plugin: typeof Plugin;
@@ -75,15 +76,18 @@ class Iris {
    * Placeholder for <div></div>
    */
   static Empty: typeof Component;
+
+  static hook: (component: Component, hook: string, options?: IHookOptions) => void;
 }
 
 /**
  * Initializing the inner systems.
  */
-Iris.cache = new FunctionCache();       // Caching functions.
-Iris.components = new Components();     // Storing components' states.
+Iris.cache = new FunctionCache(); // Caching functions.
+Iris.components = new Components(); // Storing components' states.
 
 Iris.Component = Component;
+Iris.hook = hook;
 
 Iris.Empty = Empty;
 

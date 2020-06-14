@@ -21,12 +21,49 @@ class Album {
   }
 }
 
+class Wrapper {
+  state = {
+    count: 0
+  }
+
+  plus() {
+    this.setState({ count: this.state.count + 1 })
+  }
+
+  render() {
+    return (
+      <span>
+        <VisibleCounter count={this.state.count} />
+        <button onClick={() => { this.plus() }}>Click</button>
+      </span>
+    )
+  }
+}
+
+class VisibleCounter {
+  render() {
+    return (
+      <div>
+        { Array.from({ length: this.props.count }).map(_ => `I`) }
+      </div>
+    )
+  }
+}
+
 class Greeting {
+  onLeave() {
+    console.log('leaving greeting..');
+  }
+
   onInit() {
     this.loadData();
   }
 
   onEnter() {
+    this.setState({
+      count: 0
+    });
+    
     this.loadData();
   }
 
@@ -42,7 +79,7 @@ class Greeting {
   }
 
   state = {
-    albums: [],
+    albums: []
   };
 
   remove(id) {    
@@ -77,6 +114,10 @@ class Greeting {
 }
 
 class About {
+  onLeave() {
+    console.log('leaving about..');
+  }
+
   render() {
     return (
       <div>
@@ -88,7 +129,8 @@ class About {
 
 class App {
   state = {
-    n: Math.random()
+    n: Math.random(),
+    count: 0
   }
 
   go(url) {
@@ -108,6 +150,7 @@ class App {
         }}>
           About
         </button>
+        <Wrapper />
         <button>
           { this.state.n }
         </button>
@@ -129,10 +172,6 @@ Iris.install(
   new Router({
     baseUrl: '/example',
     routes: [
-      {
-        component: Iris.Empty,
-        path: '/',
-      },
       {
         component: Greeting,
         path: '/greeting',

@@ -56,12 +56,16 @@ class Component {
    * Force update as soon as the state gets updated.
    */
   forceUpdate() {
+    console.time('Update');
+
     const updated = this.render(Iris.createElement as THyperscript) as VNode;    
     const patches = diff(this.lastRender as VNode, updated);
 
     this.lastRender = updated;
 
     patch(this.$root, patches);
+
+    console.timeEnd('Update');
   }
 
   /**
@@ -92,10 +96,6 @@ class Component {
     if (!callback) { return; }
 
     callback.call(this.parent, message);
-  }
-
-  reset() {
-    this.$onInitFired = false;
   }
 }
 
