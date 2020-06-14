@@ -32,7 +32,7 @@ class Ajax extends Iris.Plugin {
     })
   }
 
-  inject() {
+  injectIntoComponent() {
     return {
       $ajax: {
         request: this.request

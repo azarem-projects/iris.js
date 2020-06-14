@@ -18,8 +18,8 @@ import modifyRender from '@/vdom/render/modify-render';
 import Component from '@/core/component';
 import hook, { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
 import extractKeyIdPair from './util/ids-keys';
-import getProto from '@/util/get-proto';
 import getPrototype from '@/util/get-prototype';
+import extend from './util/extend';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -62,24 +62,32 @@ class VNode {
      * If tagName is an instance of Component.
      */
     if (isInstantiable(tagName)) {
+      const Constructor: TInstantiable<Component> = tagName as TInstantiable<Component>;
+      
+      /**
+       * Extending the component's prototype,
+       * considering, that it's not inheriting from Iris.Component.
+       */
+      extend(Constructor, Component as TInstantiable<Component>);
+
       /**
        * key - is given by the user.
        * _id - is set programmatically.
        */
       const { _id, key } = extractKeyIdPair(props);
-      
-      const Constructor: TInstantiable<Component> = tagName as TInstantiable<Component>;
 
+      /**
+       * Attempt to find an existing instance of the component by its key and _id.
+       */
       if (!_id) {
-        this.component = new Constructor(props);
+        this.component = new Constructor();
       } else {        
         const matchComponent = Iris.components.find(component => component.key === key && component.id === _id);
 
         if (matchComponent) {
           this.component = matchComponent.instance as Component;
-          this.component.updateProps(props);
         } else {
-          this.component = new Constructor(props);
+          this.component = new Constructor();
 
           Iris.components.push({
             instance: this.component,
@@ -88,7 +96,9 @@ class VNode {
           });
         }
       }
-
+      
+      this.component.setProps(props);
+      
       this.component.extendScope(Iris.toInject);
 
       /**
@@ -96,21 +106,14 @@ class VNode {
        * Each component declaration gets a specific computed id
        * based on its path and eventually key.
        */
-
-      /**
-       * Let's try to cache it!
-       * 
-       * Cache works pretty well, but not for this function.
-       * It's just not about caching => needs to be redone.
-       */
-      if (!getPrototype(tagName).render.toString().includes('___mod')) {
-        getPrototype(tagName).render = modifyRender(this.component.render, _id, key, { __id: _id, _key: key });
+      if (!getPrototype(Constructor).render.toString().includes('___mod')) {
+        getPrototype(Constructor).render = modifyRender(this.component.render, _id, key, { __id: _id, _key: key });
       }
 
       this.component.lastRender = this.component.render.apply(
         this.component,
         <[]> <any> [Iris.createElement]
-      );
+      ) as VNode;
 
       this.component.vNode = this;
 
@@ -155,13 +158,9 @@ class VNode {
    * vNode2Element
    */
   render(): Element {
-    /**
-     * We know that tagName is now a string, but typescript doesn't.
-     */
     const $root = document.createElement(this.tagName as string);
 
     if (this.isComponent()) {
-      (this.component as Component).$root = $root;
       /**
        * There's only one case if component doesn't have a parent.
        * If it's an app itself.
@@ -210,38 +209,29 @@ class VNode {
       const childDom = child instanceof VNode ? child.render() : document.createTextNode(child);
 
       if (child instanceof VNode) {
-        if (child.component) {
-          hook(child.component, BEFORE_RENDER, { arguments: [childDom] });
+        if (child.isComponent()) {
+          hook((child.component as any), BEFORE_RENDER, { arguments: [childDom] });
         }
       }
 
       $root.appendChild(childDom);
-
-      /**
-       * After a child gets rendered
-       * for the first time the parent
-       * calls its onInit hook.
-       */
-      if (child instanceof VNode) {
-        if (child.component && !child.component.$onInitFired) {
-          hook(child.component, ON_INIT);
-
-          child.component.$prepared = true;
-          child.component.$onInitFired = true;
-        }
-      }
     });
 
-    if (this.component) {
-      this.component.$prepared = true;
-      this.component.$onInitFired = true;
+    if (this.isComponent()) {
+      if (!(this.component as any).$onInitFired) {
+        hook((this.component as any), ON_INIT);
+
+        (this.component as any).$onInitFired = true;
+      }
+
+      (this.component as any).$root = $root;
     }
 
     return $root;
   }
 
   isComponent() {
-    return !!this.component;
+    return Boolean(this.component);
   }
 }
 

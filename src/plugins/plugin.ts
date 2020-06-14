@@ -1,5 +1,6 @@
-abstract class Plugin {
-  abstract inject(): IIterable<any>;
+class Plugin {
+  injectIntoComponent(): IIterable<any> { return {} }
+  injectIntoIris(): IIterable<any> { return {} }
 }
 
 export default Plugin;

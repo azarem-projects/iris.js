@@ -29,6 +29,8 @@ class Iris {
    *
    * @example class App extends Iris.Component {
    * }
+   * 
+   * @deprecated
    */
   static Component: typeof Component;
 
@@ -36,6 +38,8 @@ class Iris {
    * Plugin class for inheritance.
    * @example class Store extends Iris.Plugin {
    * }
+   * 
+   * @deprecated
    */
   static Plugin: typeof Plugin;
   static install: (plugin: Plugin) => void;

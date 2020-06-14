@@ -11,7 +11,6 @@ import Iris from './iris';
  * The core of Iris.
  */
 abstract class Component {
-
   /**
    * We don't trust the user.
    * Everything might be undefined.
@@ -26,22 +25,21 @@ abstract class Component {
   vNode?: VNode;
   parent?: Component;
 
-  $prepared: boolean = false;
   $onInitFired: boolean = false;
-
-  /**
-   * Hyperscript.
-   */
-  abstract render(h?: THyperscript): VNode;
-
-  /**
-   * Hooks.
-   */
-  abstract onInit(): void;
 
   constructor(props: IIterable<any>) {
     this.props = props;
   }
+
+  /**
+   * Hyperscript.
+   */
+  render(h?: THyperscript): VNode | void {};
+
+  /**
+   * Hooks.
+   */
+  onInit() {}
 
   /**
    * Updates the states, re-renders the component.
@@ -49,7 +47,7 @@ abstract class Component {
   setState(newState: IIterable<any>) {
     this.state = Object.assign(this.state, newState);
 
-    if (this.$prepared && this.$onInitFired) {
+    if (this.$onInitFired) {
       this.forceUpdate();
     }
   }
@@ -58,30 +56,24 @@ abstract class Component {
    * Force update as soon as the state gets updated.
    */
   forceUpdate() {
-    console.time('update');
-
-    const updated = this.render(Iris.createElement);
+    const updated = this.render(Iris.createElement) as VNode;    
     const patches = diff(this.lastRender as VNode, updated);
 
     this.lastRender = updated;
 
     patch(this.$root, patches);
-
-    console.timeEnd('update');
   }
 
   /**
    * Updating props every time the component
    * needs to be re-rendered.
    */
-  updateProps(props: IIterable<any> | undefined | null) {
+  setProps(props: IIterable<any> | undefined | null) {
     this.props = props;
   }
 
   /**
    * Extending "this"-scope of the component.
-   * 
-   * @param item 
    */
   extendScope(item: IIterable<any>) {
     for (const [key, value] of Object.entries(item)) {
@@ -91,9 +83,6 @@ abstract class Component {
 
   /**
    * Sends a message to the parent.
-   * 
-   * @param event function name
-   * @param message js-object
    */
   dispatch(event: string, message: IIterable<any> | any) {    
     if (!this.parent) { return; }

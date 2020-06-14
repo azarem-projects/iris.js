@@ -17,7 +17,7 @@ class StateManager extends Iris.Plugin {
     }
   }
 
-  inject() {
+  injectIntoComponent() {
     return {
       $store: {
         state: this.state,

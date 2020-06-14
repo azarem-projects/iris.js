@@ -1,5 +1,4 @@
 import Iris from './core/iris';
-import Component from './core/component';
 
 import StateManager from './plugins/examples/state-manager';
 import Ajax from './plugins/examples/ajax';
@@ -18,6 +17,30 @@ declare global {
 
   interface IIterable<T> {
     [key: string]: T;
+  }
+
+  class Component {
+    id?: string;
+    props?: IIterable<any> | undefined | null;
+    state?: IIterable<any>;
+  
+    lastRender?: VNode;
+    $root?: Element;
+  
+    vNode?: VNode;
+    parent?: Component;
+  
+    $onInitFired: boolean;    
+
+    constructor(props: IIterable<any>);    
+    
+    render(h?: THyperscript): VNode | void;
+    onInit(): void;
+    setState(newState: IIterable<any>): void;
+    forceUpdate(): void;
+    setProps(props: IIterable<any> | undefined | null): void;
+    extendScope(item: IIterable<any>): void;
+    dispatch(event: string, message: IIterable<any> | any): void;
   }
 
   type TInstantiable<T> = new (arg?: any) => T;

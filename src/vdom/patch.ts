@@ -75,15 +75,15 @@ function reorderChildren(node: any, moves: any) {
        * Need to find the node that actually gets removed.
        * Or create a workaround
        */
-      const $node = node.childNodes[index];
+      // const $node = node.childNodes[index];
 
-      const comp = Iris.components.find(_comp => _comp.instance.$root === $node);
+      // const comp = Iris.components.find(_comp => _comp.instance.$root === $node);
 
-      if (comp) {
-        const id = comp.id;
+      // if (comp) {
+      //   const id = comp.id;
 
-        Iris.components.remove(id);
-      }
+      //   Iris.components.remove(id);
+      // }
 
       staticNodeList[index] === node.childNodes[index] && node.removeChild(node.childNodes[index]);
 

@@ -1,6 +1,6 @@
 /** @jsx Iris.createElement */
 
-class Album extends Iris.Component {
+class Album {
   remove() {
     this.dispatch('remove', this.props.key);
   }
@@ -8,109 +8,130 @@ class Album extends Iris.Component {
   render() {
     return (
       <div>
-        <div className="row">
-          { this.props.title }
-          <button onClick={() => { this.remove() }}>Remove</button>
+        <div className='row'>
+          {this.props.title}
+          <button onClick={() => {
+            this.remove();
+          }}>
+            Remove
+          </button>
         </div>
       </div>
-    )
+    );
   }
 }
 
-class Greeting extends Iris.Component {
+class Greeting {
+  onInit() {
+    this.loadData();
+  }
+
   async loadData() {
     const result = await this.$ajax.request({
       method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/comments'
-    })
+      url: 'https://jsonplaceholder.typicode.com/comments',
+    });
 
     this.setState({
-      albums: [...result.data]
-    })
+      albums: [...result.data],
+    });
   }
 
   state = {
-    albums: [
-    ]
+    albums: [],
   };
 
-  remove(id) {
+  remove(id) {    
     const albums = this.state.albums;
-    const index = albums.findIndex(album => album.id === id);
-
+    const index = albums.findIndex((album) => album.id === id);
+    
     albums.splice(index, 1);
 
     this.setState({
-      albums
-    })
+      albums,
+    });
   }
 
   render() {
     return (
       <div>
         <div>
-          <button onClick={() => { this.loadData() }}>Load data</button>
-          { this.state.albums.map(album => 
+          <button
+            onClick={() => {
+              this.loadData();
+            }}
+          >
+            Load data
+          </button>
+          {this.state.albums.map((album) => (
             <Album key={album.id} url={album.url} title={album.body} />
-          ) }
+          ))}
         </div>
       </div>
-    )
+    );
   }
 }
 
-class About extends Iris.Component {
+class About {
   render() {
     return (
       <div>
-        <div>
-          About
-        </div>
+        <div>About</div>
       </div>
-    )
+    );
   }
 }
 
-class App extends Iris.Component {
+class App {
   go(url) {
     this.$router.go(url);
   }
 
   render() {
     return (
-      <div className="THIS">
-        <button onClick={() => { this.go('/example/greeting') }}> Greeting </button>
-        <button onClick={() => { this.go('/example/about') }}> About </button>
-        <this.$router.View />
+      <div className='THIS'>
+        <button onClick={() => {
+          this.go('/example/greeting');
+        }}>
+          Greeting
+        </button>
+        <button onClick={() => {
+          this.go('/example/about');
+        }}>
+          About
+        </button>
+        <Iris.Router />
       </div>
-    )
+    );
   }
 }
 
 Iris.install(
   new StateManager({
-    foo: 'bar'
+    foo: 'bar',
   })
-)
-
-Iris.install(
-  new Ajax()
-)
-
-Iris.install(
-  new Router([
-    {
-      component: Greeting,
-      path: '/greeting'
-    },
-    {
-      component: About,
-      path: '/about'
-    },
-  ])
-)
-
-Iris.mount(
-  Iris.createElement(App, null),
-  '#root'
 );
+
+Iris.install(new Ajax());
+
+Iris.install(
+  new Router({
+    baseUrl: '/example',
+    routes: [
+      {
+        component: Greeting,
+        path: '/',
+      },
+      {
+        component: Greeting,
+        path: '/greeting',
+      },
+      {
+        component: About,
+        path: '/about',
+      },
+    ],
+  })
+);
+
+Iris.mount(Iris.createElement(App, null), '#root');
