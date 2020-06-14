@@ -10,7 +10,7 @@ import Iris from './iris';
  *
  * The core of Iris.
  */
-class Component {
+abstract class Component {
   /**
    * We don't trust the user.
    * Everything might be undefined.
@@ -34,7 +34,8 @@ class Component {
   /**
    * Hyperscript.
    */
-  render(h?: THyperscript): VNode | void {};
+  abstract render(h?: THyperscript): VNode | void;
+  abstract template(): string | void;
 
   /**
    * Hooks.

@@ -113,18 +113,58 @@ class Greeting {
   }
 }
 
+class Child {
+  state = {
+    msg: 'Hello, world!'
+  }
+
+  template() {
+    return `
+      <div>
+        <span> {{ props.key }} </span>
+      </div>
+    `
+  }
+
+  // render() {
+  //   return (
+  //     <div>
+  //       <span> { this.props.key } </span>
+  //     </div>
+  //   )
+  // }
+}
+
 class About {
+  components = {
+    Child
+  }
+
+  state = {
+    variable: 42
+  }
+
   onLeave() {
     console.log('leaving about..');
   }
 
-  render() {
-    return (
+  template() {
+    return `
       <div>
-        <div>About</div>
+        <h2 title="foo" id="bar">FOO</h2>
+        <Child :key="state.variable" />
       </div>
-    );
+    `
   }
+
+  // render() {
+  //   return (
+  //     <div>
+  //       <h2 title="foo" id="bar">FOO</h2>
+  //       <Child key={this.state.variable}/>
+  //     </div>
+  //   );
+  // }
 }
 
 class App {

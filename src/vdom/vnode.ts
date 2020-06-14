@@ -22,6 +22,7 @@ import { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
 import extractKeyIdPair from './util/ids-keys';
 import getPrototype from '@/util/get-prototype';
 import extend from './util/extend';
+import stringToHyperscript from '@/parse/string-to-hyperscript';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -104,6 +105,12 @@ class VNode {
       this.component.setProps(props);
 
       this.component.extendScope(Iris.toInject);
+
+      if (!getPrototype(Constructor).render) {
+        getPrototype(Constructor).render = stringToHyperscript(this.component.template() as string, this.component)();;
+      }
+
+      // console.log(getPrototype(Constructor).render.toString());
 
       /**
        * Modifying the render function provided by the user.

@@ -84,7 +84,9 @@ declare global {
     vNode?: VNode;
     parent?: Component;
   
-    $onInitFired: boolean;    
+    $onInitFired: boolean;
+
+    components?: (typeof Component)[];
 
     constructor(props: IIterable<any>);    
     
