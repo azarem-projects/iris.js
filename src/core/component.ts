@@ -3,6 +3,7 @@ import VNode from '@/vdom/vnode';
 
 import diff from '@/vdom/diff/diff';
 import patch from '@/vdom/patch';
+import Iris from './iris';
 
 /**
  * Iris.Component
@@ -59,7 +60,7 @@ abstract class Component {
   forceUpdate() {
     console.time('update');
 
-    const updated = this.render();
+    const updated = this.render(Iris.createElement);
     const patches = diff(this.lastRender as VNode, updated);
 
     this.lastRender = updated;

@@ -18,11 +18,41 @@ class Album extends Iris.Component {
 }
 
 class Greeting extends Iris.Component {
+  async loadData() {
+    const result = await this.$ajax.request({
+      method: 'GET',
+      url: 'https://jsonplaceholder.typicode.com/comments'
+    })
+
+    this.setState({
+      albums: [...result.data]
+    })
+  }
+
+  state = {
+    albums: [
+    ]
+  };
+
+  remove(id) {
+    const albums = this.state.albums;
+    const index = albums.findIndex(album => album.id === id);
+
+    albums.splice(index, 1);
+
+    this.setState({
+      albums
+    })
+  }
+
   render() {
     return (
       <div>
         <div>
-          Hello, world!
+          <button onClick={() => { this.loadData() }}>Load data</button>
+          { this.state.albums.map(album => 
+            <Album key={album.id} url={album.url} title={album.body} />
+          ) }
         </div>
       </div>
     )
@@ -42,47 +72,16 @@ class About extends Iris.Component {
 }
 
 class App extends Iris.Component {
-  async loadData() {
-    const result = await this.$ajax.request({
-      method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/comments'
-    })
-
-    this.setState({
-      albums: [...result.data]
-    })
+  go(url) {
+    this.$router.go(url);
   }
-
-  onInit() {
-    // this.loadData()
-  }
-
-  remove(id) {
-    const albums = this.state.albums;
-    const index = albums.findIndex(album => album.id === id);
-
-    albums.splice(index, 1);
-
-    this.setState({
-      albums
-    })
-  }
-
-  state = {
-    albums: [
-    ]
-  };
 
   render() {
     return (
       <div className="THIS">
-        <button onClick={() => { this.loadData() }}>Load data</button>
+        <button onClick={() => { this.go('/example/greeting') }}> Greeting </button>
+        <button onClick={() => { this.go('/example/about') }}> About </button>
         <this.$router.View />
-        <div>
-          { this.state.albums.map(album => 
-            <Album key={album.id} url={album.url} title={album.body} />
-          ) }
-        </div>
       </div>
     )
   }

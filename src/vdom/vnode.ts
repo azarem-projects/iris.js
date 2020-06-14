@@ -104,7 +104,7 @@ class VNode {
        * It's just not about caching => needs to be redone.
        */
       if (!getPrototype(tagName).render.toString().includes('___mod')) {
-        getPrototype(tagName).render = modifyRender(this.component.render, _id, key);
+        getPrototype(tagName).render = modifyRender(this.component.render, _id, key, { __id: _id, _key: key });
       }
 
       this.component.lastRender = this.component.render.apply(
@@ -149,51 +149,6 @@ class VNode {
     });
 
     this.count = count;
-
-    if (this.component) {
-      if (!this.parent) {
-        this.parent = Iris.vApp;
-      }
-
-      /**
-       * So-called chain of child-components.
-       * Serves to find child-parent relations.
-       */
-      var vChildComponents: Component[] = [];
-
-      /**
-       * Iterates through all the children and nested children of ELEMENTS
-       * skiping the children of the components.
-       */
-      const iterateChilrenOf = (iteration: VNode) => {
-        if (!iteration.children) {
-          return;
-        }
-
-        for (var i = 0; i < iteration.children.length; i++) {
-          const child = iteration.children[i] as VNode;
-          if (child.component) {
-            vChildComponents.push(child.component);
-          } else {
-            if (isString(child)) {
-              iterateChilrenOf(child);
-            }
-          }
-        }
-      };
-
-      /**
-       * Start iteration.
-       */
-      iterateChilrenOf(this);
-
-      /**
-       * All matches are the children of this vNode.
-       */
-      for (var i = 0; i < vChildComponents.length; i++) {
-        vChildComponents[i].parent = this.component;
-      }
-    }
   }
 
   /**
@@ -211,8 +166,22 @@ class VNode {
        * There's only one case if component doesn't have a parent.
        * If it's an app itself.
        */
-      if (!(this.component as Component).parent && Iris.vApp.component) {
-        (this.component as Component).parent = Iris.vApp.component;
+      if (!(this.component as Component).parent) {
+        if (this.props) {
+          const { parent } = this.props;
+
+          if (parent) {
+            const match = Iris.components.find(component => component.id === parent._id && component.key === parent.key);
+
+            if (match) {
+              (this.component as Component).parent = match.instance;
+            }
+          }
+        }
+
+        if (!(this.component as any).parent && Iris.vApp.component) {
+          (this.component as Component).parent = Iris.vApp.component;
+        }
       }
     }
 
@@ -256,9 +225,17 @@ class VNode {
       if (child instanceof VNode) {
         if (child.component && !child.component.$onInitFired) {
           hook(child.component, ON_INIT);
+
+          child.component.$prepared = true;
+          child.component.$onInitFired = true;
         }
       }
     });
+
+    if (this.component) {
+      this.component.$prepared = true;
+      this.component.$onInitFired = true;
+    }
 
     return $root;
   }

@@ -29,6 +29,10 @@ class Components {
       this.items.splice(index, 1);
     }
   }
+
+  getUnique(id: string | number): Component | undefined {
+    return this.items.find(component => component.instance.id === id)?.instance;
+  }
 }
 
 export default Components;
