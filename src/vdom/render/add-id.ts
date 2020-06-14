@@ -27,7 +27,6 @@ function addId(str: string, prefix: string, _prefix: string, { __id, _key }: any
     /** 
      * Attempt to exclude keys.
      */
-
     for (var i = 0; i < components.length; i++) {
 
       for (var j = 0; j < countMatches(str, `${components[i]}, null`); j++) {

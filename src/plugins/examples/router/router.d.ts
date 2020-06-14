@@ -4,7 +4,6 @@ declare global {
   interface IRouter {
     go(url: string): void;
     routes: IRoute[];
-    View: any;
   }
 
   interface IRoute {

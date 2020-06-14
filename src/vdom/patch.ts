@@ -70,23 +70,7 @@ function reorderChildren(node: any, moves: any) {
     const index = move.index;
     if (move.type === 0) {
       if (!node.childNodes[index]) return;
-
-      /**
-       * Need to find the node that actually gets removed.
-       * Or create a workaround
-       */
-      // const $node = node.childNodes[index];
-
-      // const comp = Iris.components.find(_comp => _comp.instance.$root === $node);
-
-      // if (comp) {
-      //   const id = comp.id;
-
-      //   Iris.components.remove(id);
-      // }
-
       staticNodeList[index] === node.childNodes[index] && node.removeChild(node.childNodes[index]);
-
       staticNodeList.splice(index, 1);
     } else if (move.type === 1) {
       var insertNode;

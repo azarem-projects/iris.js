@@ -21,13 +21,10 @@ class Components {
     return this.items.find(predicate);
   }
 
-  remove(id: string) {
-    const items = this.items.filter(item => item.id.includes(id));
-
-    for (var i = 0; i < items.length; i++) {
-      const index = this.items.indexOf(items[i]) 
-      this.items.splice(index, 1);
-    }
+  remove(predicate: (value: IComponent, index: number, obj: IComponent[]) => unknown) {    
+    const index = this.items.findIndex(predicate);
+    
+    this.items.splice(index, 1);
   }
 
   getUnique(id: string | number): Component | undefined {

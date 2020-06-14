@@ -9,6 +9,7 @@ import Components from '@/static/components';
 import mount from '@/core/mount';
 import install from '@/plugins/install';
 import FunctionCache from '@/core/function-cache';
+import Empty from '@/static/empty';
 
 /**
  * The core of Iris.
@@ -69,6 +70,11 @@ class Iris {
    * Mount the application.
    */
   static mount: (vApp: VNode, target: string | Element) => VNode;
+
+  /**
+   * Placeholder for <div></div>
+   */
+  static Empty: typeof Component;
 }
 
 /**
@@ -78,6 +84,8 @@ Iris.cache = new FunctionCache();       // Caching functions.
 Iris.components = new Components();     // Storing components' states.
 
 Iris.Component = Component;
+
+Iris.Empty = Empty;
 
 Iris.Plugin = Plugin;
 Iris.install = install;

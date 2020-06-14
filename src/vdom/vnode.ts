@@ -237,9 +237,6 @@ class VNode {
 
 /**
  * Hyperscript.
- * @param tagName string | Component
- * @param props - { key: value }
- * @param children [string | Component]
  */
 function createElement(
   tagName: string | TInstantiable<Component>,

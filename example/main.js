@@ -26,6 +26,10 @@ class Greeting {
     this.loadData();
   }
 
+  onEnter() {
+    this.loadData();
+  }
+
   async loadData() {
     const result = await this.$ajax.request({
       method: 'GET',
@@ -83,6 +87,10 @@ class About {
 }
 
 class App {
+  state = {
+    n: Math.random()
+  }
+
   go(url) {
     this.$router.go(url);
   }
@@ -99,6 +107,9 @@ class App {
           this.go('/example/about');
         }}>
           About
+        </button>
+        <button>
+          { this.state.n }
         </button>
         <Iris.Router />
       </div>
@@ -119,7 +130,7 @@ Iris.install(
     baseUrl: '/example',
     routes: [
       {
-        component: Greeting,
+        component: Iris.Empty,
         path: '/',
       },
       {

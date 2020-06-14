@@ -20,8 +20,9 @@ function hook(component: Component, hook: string, options?: IHookOptions) {
 }
 
 const ON_INIT = 'onInit';
+const ON_ENTER = 'onEnter';
 const BEFORE_RENDER = 'beforeRender';
 
-export { ON_INIT, BEFORE_RENDER };
+export { ON_INIT, ON_ENTER, BEFORE_RENDER };
 
 export default hook;
