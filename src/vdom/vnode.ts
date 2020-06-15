@@ -86,7 +86,8 @@ class VNode {
         this.component = new Constructor();
       } else {
         const matchComponent = Iris.components.find(
-          (component) => component.key === key && component.id === _id && component.parent.key === parent.key
+          (component) =>
+            component.key === key && component.id === _id
         );
 
         if (matchComponent) {
@@ -98,7 +99,7 @@ class VNode {
             instance: this.component,
             id: _id,
             key: key,
-            parent
+            parent,
           });
         }
       }
@@ -107,25 +108,41 @@ class VNode {
 
       this.component.extendScope(Iris.toInject);
 
-      if (!getPrototype(Constructor).render) {
-        getPrototype(Constructor).render = stringToHyperscript(this.component.template() as string, this.component)();
-      }
+      if (!getPrototype<Component>(Constructor).$render) {
+        const renderResult = this.component.render.apply(this.component, <[]>(
+          (<any>[Iris.createElement])
+        ));
 
-      // console.log(getPrototype(Constructor).render.toString());
+        if (isString(renderResult)) {
+          getPrototype<Component>(Constructor).$render = stringToHyperscript(
+            renderResult as string,
+            this.component
+          )();
+        } else {
+          getPrototype<Component>(Constructor).$render = this.component.render as (
+            h?: THyperscript
+          ) => VNode;
+        }
+      }
 
       /**
        * Modifying the render function provided by the user.
        * Each component declaration gets a specific computed id
        * based on its path and eventually key.
        */
-      if (!getPrototype(Constructor).render.toString().includes('___mod')) {
-        getPrototype(Constructor).render = modifyRender(this.component.render, _id, key, {
-          __id: _id,
-          _key: key,
-        });
+      if (!getPrototype<Component>(Constructor).$render.toString().includes('___mod')) {
+        getPrototype<Component>(Constructor).$render = modifyRender(
+          this.component.$render,
+          _id,
+          key,
+          {
+            __id: _id,
+            _key: key,
+          }
+        );
       }
 
-      this.component.lastRender = this.component.render.apply(this.component, <[]>(
+      this.component.lastRender = this.component.$render.apply(this.component, <[]>(
         (<any>[Iris.createElement])
       )) as VNode;
 
@@ -172,7 +189,7 @@ class VNode {
    * vNode2Element
    */
   render(): Element {
-    const $root = document.createElement(this.tagName as string);
+    var $root = document.createElement(this.tagName as string);
 
     if (this.isComponent()) {
       /**
@@ -196,6 +213,25 @@ class VNode {
 
         if (!(this.component as any).parent && Iris.vApp.component) {
           (this.component as Component).parent = Iris.vApp.component;
+        }
+      }
+    }
+
+    if (this.isComponent()) {
+      if ((this.component as Component).lastRender) {
+        for (const [attribute, value] of Object.entries(((this.component as Component).lastRender as VNode).props as IIterable<any>)) {
+          if (attribute.startsWith('on')) {
+            addListener($root, attribute.replace('on', '').toLocaleLowerCase(), value);
+          } else {
+            /**
+             * Checking if it's a valid HTML attribute.
+             */
+            const exists = attribute in $root;
+    
+            if (exists) {
+              $root.setAttribute(attribute !== 'className' ? attribute : 'class', value);
+            }
+          }
         }
       }
     }

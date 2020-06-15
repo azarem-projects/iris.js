@@ -3,12 +3,13 @@ class Album {
     this.dispatch('remove', this.props.key);
   }
 
-  template() {
+  render() {
     return `
       <div>
         <div className="row">
           {{ props.title }}
           <button @click="remove()">Remove</button>
+          {{ props['album-id'] }}
         </div>
       </div>
     `
@@ -28,7 +29,7 @@ class Wrapper {
     VisibleCounter
   }
 
-  template() {
+  render() {
     return `
       <span>
         <VisibleCounter :count="state.count"></VisibleCounter>
@@ -43,7 +44,7 @@ class VisibleCounter {
     arr: [1, 2, 3]
   }
 
-  template() {
+  render() {
     return `
       <div>
         <span b-for="el in Array.from({ length: props.count })">
@@ -102,13 +103,11 @@ class Greeting {
     });
   }
 
-  template() {
+  render() {
     return `
       <div>
-        <div>
-          <button @click="loadData()">Load data</button>
-          <Album b-for="album in state.albums" :key="album.id" :title="album.employee_name"></Album>
-        </div>
+        <button @click="loadData()">Load data</button>
+        <Album b-for="(album, i) in state.albums" :key="album.id" :title="album.employee_name" :album-id="i"></Album>
       </div>
     `
   }
@@ -120,12 +119,10 @@ class Child {
     n: Math.random()
   }
 
-  template() {
-    return `
-      <div>
-        <span> {{ props.key }} text text {{ state.msg }} more text {{ state.n }} TEEXT </span>
-      </div>
-    `
+  render(h) {
+    return h('div', null,
+      h('span', null, `${this.props.key} text text ${this.state.msg} more text ${this.state.n} TEEXT`)
+    )
   }
 }
 
@@ -142,9 +139,9 @@ class About {
     console.log('leaving about..');
   }
 
-  template() {
+  render() {
     return `
-      <div>
+      <div className="foobar">
         <h2 title="foo" id="bar">FOO</h2>
         <Child :key="state.variable + 1"></Child>
         <Child :key="state.variable + 2"></Child>
@@ -168,7 +165,7 @@ class App {
     'Iris.Router': Iris.Router
   }
 
-  template() {
+  render() {
     return `
       <div className="THIS">
         <button @click="go('/example/greeting')">
@@ -209,4 +206,7 @@ Iris.install(
   })
 );
 
-Iris.mount(Iris.createElement(App, null), '#root');
+Iris.mount(
+  Iris.createElement(App),
+  '#root'
+);

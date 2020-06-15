@@ -90,7 +90,8 @@ declare global {
 
     constructor(props: IIterable<any>);    
     
-    render(h?: THyperscript): VNode | void;
+    $render(h?: THyperscript): VNode | void;
+    render(h?: THyperscript): VNode | string | void;
     onInit(): void;
     setState(newState: IIterable<any>): void;
     forceUpdate(): void;

@@ -34,8 +34,8 @@ abstract class Component {
   /**
    * Hyperscript.
    */
-  abstract render(h?: THyperscript): VNode | void;
-  abstract template(): string | void;
+  abstract $render(h?: THyperscript): VNode | void;
+  abstract render(h?: THyperscript): VNode | string | void;
 
   /**
    * Hooks.
@@ -57,16 +57,12 @@ abstract class Component {
    * Force update as soon as the state gets updated.
    */
   forceUpdate() {
-    console.time('Update');
-
-    const updated = this.render(Iris.createElement as THyperscript) as VNode;    
+    const updated = this.$render(Iris.createElement as THyperscript) as VNode;    
     const patches = diff(this.lastRender as VNode, updated);
 
     this.lastRender = updated;
 
     patch(this.$root, patches);
-
-    console.timeEnd('Update');
   }
 
   /**

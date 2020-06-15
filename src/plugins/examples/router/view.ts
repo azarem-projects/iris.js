@@ -25,13 +25,12 @@ class View {
     };
   }
 
-  render(h: THyperscript) {
+  $render(h: THyperscript) {
     return h(
       'div',
       null,
       h(
-        (this as any).$router.routes.find((view: any) => view.path === this.state.route).component,
-        { key: this.state.route }
+        (this as any).$router.routes.find((view: any) => view.path === this.state.route).component, { key: this.state.route }
       )
     );
   }
