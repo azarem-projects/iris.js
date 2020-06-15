@@ -40,17 +40,10 @@ function stringToHyperscript(input: string, context: Component) {
       nodeValue = nodeValue.split('state').join('this.state');
       nodeValue = nodeValue.split('(').join('').split(')').join('');
 
-      console.log(nodeValue);
-
       const result = `${nodeValue}`
 
       return result;
     }
-
-    const props = Object.assign(
-      {},
-      ...Array.from(el.attributes || {}).map((prop: any) => ({ [prop.name]: prop.value }))
-    );
 
     const childNodes = el.childNodes;
 

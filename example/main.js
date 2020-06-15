@@ -3,7 +3,6 @@
 class Album {
   remove() {
     this.dispatch('remove', this.props.key);
-    console.log(this);
   }
 
   render() {
