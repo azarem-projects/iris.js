@@ -3,6 +3,7 @@
 class Album {
   remove() {
     this.dispatch('remove', this.props.key);
+    console.log(this);
   }
 
   render() {
@@ -70,7 +71,7 @@ class Greeting {
   async loadData() {
     const result = await this.$ajax.request({
       method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/comments',
+      url: 'https://jsonplaceholder.typicode.com/posts',
     });
 
     this.setState({
@@ -161,7 +162,7 @@ class About {
   //   return (
   //     <div>
   //       <h2 title="foo" id="bar">FOO</h2>
-  //       <Child key={this.state.variable}/>
+  //       <Child key={this.state.variable} />
   //     </div>
   //   );
   // }

@@ -4,6 +4,10 @@ interface IComponent {
   instance: Component;
   id: string;
   key: string;
+  parent: {
+    _id: string;
+    key: string;
+  }
 }
 
 class Components {

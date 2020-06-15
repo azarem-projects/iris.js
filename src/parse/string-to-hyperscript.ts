@@ -34,10 +34,13 @@ function stringToHyperscript(input: string, context: Component) {
       nodeValue = nodeValue.split('{{').join("' + (");
       nodeValue = nodeValue.split('}}').join(") + '");
 
-      nodeValue = "('" + nodeValue + "').toString()";
+      nodeValue = "('" + nodeValue + "')";
 
       nodeValue = nodeValue.split('props').join('this.props');
       nodeValue = nodeValue.split('state').join('this.state');
+      nodeValue = nodeValue.split('(').join('').split(')').join('');
+
+      console.log(nodeValue);
 
       const result = `${nodeValue}`
 

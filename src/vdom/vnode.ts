@@ -77,7 +77,7 @@ class VNode {
        * key - is given by the user.
        * _id - is set programmatically.
        */
-      const { _id, key } = extractKeyIdPair(props);
+      const { _id, key, parent } = extractKeyIdPair(props);
 
       /**
        * Attempt to find an existing instance of the component by its key and _id.
@@ -86,7 +86,7 @@ class VNode {
         this.component = new Constructor();
       } else {
         const matchComponent = Iris.components.find(
-          (component) => component.key === key && component.id === _id
+          (component) => component.key === key && component.id === _id && component.parent.key === parent.key
         );
 
         if (matchComponent) {
@@ -98,6 +98,7 @@ class VNode {
             instance: this.component,
             id: _id,
             key: key,
+            parent
           });
         }
       }
@@ -107,7 +108,7 @@ class VNode {
       this.component.extendScope(Iris.toInject);
 
       if (!getPrototype(Constructor).render) {
-        getPrototype(Constructor).render = stringToHyperscript(this.component.template() as string, this.component)();;
+        getPrototype(Constructor).render = stringToHyperscript(this.component.template() as string, this.component)();
       }
 
       // console.log(getPrototype(Constructor).render.toString());

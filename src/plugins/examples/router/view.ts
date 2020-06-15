@@ -26,14 +26,13 @@ class View {
   }
 
   render(h: THyperscript) {
-    const Component =
-      (this as any).$router.routes.find((view: any) => view.path === this.state.route)?.component ||
-      Iris.Empty;
-
     return h(
       'div',
       null,
-      h(Component, { key: this.state.route, _id: 'Property of the Iris.Router' })
+      h(
+        (this as any).$router.routes.find((view: any) => view.path === this.state.route).component,
+        { key: this.state.route }
+      )
     );
   }
 }
