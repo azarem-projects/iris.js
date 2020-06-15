@@ -167,8 +167,35 @@ class MyInput {
         {{ state.value }}
         <input @input="handleChange()" />
         <div b-for="(el, i) in Array.from({ length: state.value })" :key="i">
-          {{ i }}. Hello!
+          {{ (i + 1) }}. Hello!
         </div>
+      </div>
+    `
+  }
+}
+
+class Checkbox {
+  state = {
+    value: false
+  }
+  
+  check() {
+    this.setState({
+      value: !this.state.value
+    })
+  }
+
+  handleChange() {
+    this.setState({
+      value: event.target.checked
+    })
+  }
+
+  render() {
+    return `
+      <div>
+        <input type="checkbox" @click.stop="handleChange()" :checked="state.value" />
+        <input type="button" value="Check" @click="check()" />
       </div>
     `
   }
@@ -187,6 +214,7 @@ class App {
   components = {
     Wrapper,
     MyInput,
+    Checkbox,
     'Iris.Router': Iris.Router
   }
 
@@ -200,6 +228,7 @@ class App {
           About
         </button>
         <Wrapper></Wrapper>
+        <Checkbox></Checkbox>
         <MyInput></MyInput>
         <button> {{ state.n }} </button>
         <Iris.Router></Iris.Router>

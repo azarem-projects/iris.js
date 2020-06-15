@@ -77,12 +77,12 @@ class VNode {
        * key - is given by the user.
        * _id - is set programmatically.
        */
-      const { _id, key, parent } = extractKeyIdPair(props);
+      const { key, parent } = extractKeyIdPair(props);
 
       /**
        * Attempt to find an existing instance of the component by its key and _id.
        */
-      if (!_id) {
+      if (!key) {
         this.component = new Constructor();
       } else {
         const matchComponent = Iris.components.find(
@@ -96,7 +96,6 @@ class VNode {
 
           Iris.components.push({
             instance: this.component,
-            id: _id,
             name: name,
             key: key,
             parent,
@@ -230,6 +229,16 @@ class VNode {
          * Checking if it's a valid HTML attribute.
          */
         const exists = attribute in $root;
+
+        if (value === false || value === true) {
+          if (value) {
+            $root.setAttribute(attribute, '');
+          } else {
+            $root.removeAttribute(attribute);
+          }
+
+          break;
+        }
 
         if (exists) {
           $root.setAttribute(attribute !== 'className' ? attribute : 'class', value);

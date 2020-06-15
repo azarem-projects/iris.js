@@ -22,10 +22,18 @@ function computeProperties(el: Element, result: string) {
       output = append(output, `"${name.replace(':', '')}":`);
       output = append(output, dynamic ? `${value}` : `"${value}"`);
     } else if (event) {
-      output = append(output, `"on${name.replace('@', '')}":`);
+      const _event = name.split('.')[0];
+      const _modifier = name.split('.')[1];
+
+      const _modifiers: IIterable<string> = {
+        'prevent': 'event.preventDefault();',
+        'stop': 'event.stopPropagation();',
+      }
+
+      output = append(output, `"on${_event.replace('@', '')}":`);
       output = append(
         output,
-        `() => { this.${value.includes('(') ? value : append(value, '()')} }`
+        `() => { ${_modifier ? _modifiers[_modifier] : ''} this.${value.includes('(') ? value : append(value, '()')} }`
       );
     } else if (loop) {
       const { variable, iterator, bunch } = extractLoopParams(value);
