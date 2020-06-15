@@ -65,6 +65,8 @@ class VNode {
     if (isInstantiable(tagName)) {
       const Constructor: TInstantiable<Component> = tagName as TInstantiable<Component>;
 
+      const name = getPrototype<Component>(Constructor).constructor.name;
+
       /**
        * Extending the component's prototype,
        * considering, that it's not inheriting from Iris.Component.
@@ -84,8 +86,7 @@ class VNode {
         this.component = new Constructor();
       } else {
         const matchComponent = Iris.components.find(
-          (component) =>
-            component.key === key && component.id === _id
+          (component) => component.key === key && component.name === name
         );
 
         if (matchComponent) {
@@ -96,6 +97,7 @@ class VNode {
           Iris.components.push({
             instance: this.component,
             id: _id,
+            name: name,
             key: key,
             parent,
           });
@@ -131,12 +133,8 @@ class VNode {
       if (!getPrototype<Component>(Constructor).$render.toString().includes('___mod')) {
         getPrototype<Component>(Constructor).$render = modifyRender(
           this.component.$render,
-          _id,
-          key,
-          {
-            __id: _id,
-            _key: key,
-          }
+          name,
+          key
         );
       }
 
@@ -202,7 +200,7 @@ class VNode {
 
           if (parent) {
             const match = Iris.components.find(
-              (component) => component.id === parent._id && component.key === parent.key
+              (component) => component.key === parent.key && component.name === parent.name
             );
 
             if (match) {

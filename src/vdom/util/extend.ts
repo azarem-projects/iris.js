@@ -1,4 +1,6 @@
 function extend(target: any, image: any) {
+  if (!target || !image) return;
+
   const bunch = [
     ...Object.getOwnPropertyNames(image),
     ...Object.keys(image)

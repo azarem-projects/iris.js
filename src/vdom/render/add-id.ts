@@ -4,12 +4,9 @@ import countMatches from '@/util/string/count-matches';
 /**
  * Needs to be completely redone. 
  */
-function addId(str: string, prefix: number, _prefix: string, { __id, _key }: any) {
-  var id = prefix + 1;
-  var KEY = _prefix + 1;
-
-  const hyperscriptFunctionName = extractHyperscriptName(str);
-  const split = str.split(`${hyperscriptFunctionName}(`);
+function addId(input: string, name: string, key: string) {
+  const hyperscriptFunctionName = extractHyperscriptName(input);
+  const split = input.split(`${hyperscriptFunctionName}(`);
   const components: string[] = [];
 
   for (var i = 0; i < split.length; i++) {
@@ -26,41 +23,25 @@ function addId(str: string, prefix: number, _prefix: string, { __id, _key }: any
      */
     for (var i = 0; i < components.length; i++) {
 
-      // for (var j = 0; j < countMatches(str, `${components[i]}, null`); j++) {
-      //   str = str.replace(`${components[i]}, null`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${KEY+1}'}`);
-      // }
-
-      // for (var j = 0; j < countMatches(str, `${components[i]},null`); j++) {
-      //   str = str.replace(`${components[i]},null`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${KEY+1}'}`);
-      // }
-
-      // for (var j = 0; j < countMatches(str, `${components[i]}, {`); j++) {
-      //   str = str.replace(`${components[i]}, {`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${KEY+1}',`);
-      // }
-
-      // for (var j = 0; j < countMatches(str, `${components[i]},{`); j++) {
-      //   str = str.replace(`${components[i]},{`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${KEY+1}',`);
-      // }
-
-      for (var j = 0; j < countMatches(str, `${components[i]}, null`); j++) {
-        str = str.replace(`${components[i]}, null`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${id++}'}`);
+      for (var j = 0; j < countMatches(input, `${components[i]}, null`); j++) {
+        input = input.replace(`${components[i]}, null`, `${components[i]},{parent:{key:'${key}',name:'${name}'}}`);
       }
 
-      for (var j = 0; j < countMatches(str, `${components[i]},null`); j++) {
-        str = str.replace(`${components[i]},null`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${id++}'}`);
+      for (var j = 0; j < countMatches(input, `${components[i]},null`); j++) {
+        input = input.replace(`${components[i]},null`, `${components[i]},{parent:{key:'${key}',name:'${name}'}}`);
       }
 
-      for (var j = 0; j < countMatches(str, `${components[i]}, {`); j++) {
-        str = str.replace(`${components[i]}, {`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${id++}',`);
+      for (var j = 0; j < countMatches(input, `${components[i]}, {`); j++) {
+        input = input.replace(`${components[i]}, {`, `${components[i]},{parent:{key:'${key}',name:'${name}'},`);
       }
 
-      for (var j = 0; j < countMatches(str, `${components[i]},{`); j++) {
-        str = str.replace(`${components[i]},{`, `${components[i]},{parent:{_id:'${__id}',key:'${_key}'},_id:'${id++}',`);
+      for (var j = 0; j < countMatches(input, `${components[i]},{`); j++) {
+        input = input.replace(`${components[i]},{`, `${components[i]},{parent:{key:'${key}',name:'${name}'},`);
       }
     }
   }
 
-  return str;
+  return input;
 }
 
 export default addId;

@@ -2,6 +2,7 @@ import Component from "@/core/component";
 
 interface IComponent {
   instance: Component;
+  name: string;
   id: string;
   key: string;
   parent: {
