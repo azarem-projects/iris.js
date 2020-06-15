@@ -4,26 +4,11 @@ function isValid(input: string) {
   return document.createElement(input).toString() != "[object HTMLUnknownElement]";
 }
 
-/**
- * return function render() {
- *  return Iris.createElement('div', {}, 
- *  ('').toString(),
- *  Iris.createElement('div', {},
- *    ('').toString(),
- *    Iris.createElement('span', {},
- *      ('' + ( this.props.key ) + '').toString()
- *    ),
- *    ('').toString()),
- *    ('').toString()
- *  )
- * }
- */
-
 function stringToHyperscript(input: string, context: Component) {
   var $el: Element = document.createElement('div');
 
   $el.innerHTML = input;
-  // $el = $el.firstElementChild as Element;
+  $el = $el.firstElementChild as Element;
 
   function iterate(el: Element, item?: any) {
     const tagName = el?.tagName;
@@ -31,18 +16,15 @@ function stringToHyperscript(input: string, context: Component) {
     if (!tagName) {
       var nodeValue = ((el as Element).nodeValue as string).trim();
 
-      nodeValue = nodeValue.split('{{').join("' + (");
-      nodeValue = nodeValue.split('}}').join(") + '");
+      nodeValue = nodeValue.split('{{').join("' + ");
+      nodeValue = nodeValue.split('}}').join(" + '");
 
-      nodeValue = "('" + nodeValue + "')";
+      nodeValue = "'" + nodeValue + "'";
 
       nodeValue = nodeValue.split('props').join('this.props');
       nodeValue = nodeValue.split('state').join('this.state');
-      nodeValue = nodeValue.split('(').join('').split(')').join('');
 
-      const result = `${nodeValue}`
-
-      return result;
+      return nodeValue;
     }
 
     const childNodes = el.childNodes;
@@ -55,28 +37,61 @@ function stringToHyperscript(input: string, context: Component) {
       components[key.toLowerCase()] = { old: key, value };
     }
 
-    result = result.replace('TAGNAME', tagName.toLowerCase() in components ? `${components[tagName.toLowerCase()].old}` : `'${tagName.toLowerCase()}'`);
+    const tagIsValid = isValid(tagName.toLowerCase());
+
+    if (tagIsValid) {
+      result = result.replace('TAGNAME', `'${tagName.toLowerCase()}'`);
+    } else {
+      const isComponent = tagName.toLowerCase() in components;
+
+      if (isComponent) {
+        result = result.replace('TAGNAME', `${components[tagName.toLowerCase()].old}`);
+      }
+    }
 
     var propString = '{';
 
     for (var i = 0; i < el.attributes.length; i++) {
       var propName = el.attributes[i].name;
-      const dynamic = propName.includes(':');
       var propValue = el.attributes[i].value;
+
+      const dynamic = propName.includes(':');
+      const event = propName.includes('@');
+      const loop = propName.includes('b-for');
 
       if (dynamic) {
         propValue = propValue.split('state').join('this.state');
         propValue = propValue.split('props').join('this.props');
 
         propName = propName.replace(':', '');
+        
+        propString += `"${propName}":`;
+        propString += dynamic ? `${propValue}` : `"${propValue}"`;
+      } else if (event) {        
+        propString += `"on${propName.replace('@', '')}":`;
+        propString += `() => { this.${propValue} }`;
+      } else if (loop) {
+        const variable = propValue.split(' in ')[0];
+        var bunch = propValue.split(' in ')[1];
+
+        bunch = bunch.split('state').join('this.state');
+        bunch = bunch.split('props').join('this.props');
+
+        result = `${bunch}.map((${variable}) => ${result})`
+      } else {
+        propString += `"${propName}":`;
+        propString += `"${propValue}"`;
       }
 
-      propString += `"${propName}":`;
-      propString += dynamic ? `${propValue}` : `"${propValue}"`;
       propString += `,`
     }
 
     propString += '}';
+    
+    propString = propString.split('{,').join('{');
+    propString = propString.split(',}').join('}');
+    
+    propString = propString.split('classname').join('className');
 
     result = result.replace('PROPS', propString);
 
@@ -99,8 +114,6 @@ function stringToHyperscript(input: string, context: Component) {
   }
 
   const func = 'return function render() { return ' + iterate($el) + '}';
-
-  // console.log(func);
 
   return Function(func);
 }

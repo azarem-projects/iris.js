@@ -18,8 +18,6 @@ function modifyRender(functionReference: any, _id: any, key: any, { __id, _key }
 
   functionText = functionText.split('return').join('var ___mod;return');
 
-  // console.log(functionText);
-
   return Function(functionText)();
 }
 

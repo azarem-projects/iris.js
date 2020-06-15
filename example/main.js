@@ -1,23 +1,17 @@
-/** @jsx Iris.createElement */
-
 class Album {
   remove() {
     this.dispatch('remove', this.props.key);
   }
 
-  render() {
-    return (
+  template() {
+    return `
       <div>
-        <div className='row'>
-          {this.props.title}
-          <button onClick={() => {
-            this.remove();
-          }}>
-            Remove
-          </button>
+        <div className="row">
+          {{ props.title }}
+          <button @click="remove()">Remove</button>
         </div>
       </div>
-    );
+    `
   }
 }
 
@@ -30,23 +24,33 @@ class Wrapper {
     this.setState({ count: this.state.count + 1 })
   }
 
-  render() {
-    return (
+  components = {
+    VisibleCounter
+  }
+
+  template() {
+    return `
       <span>
-        <VisibleCounter count={this.state.count} />
-        <button onClick={() => { this.plus() }}>Click</button>
+        <VisibleCounter :count="state.count"></VisibleCounter>
+        <button @click="plus()">Click ME</button>
       </span>
-    )
+    `
   }
 }
 
 class VisibleCounter {
-  render() {
-    return (
+  state = {
+    arr: [1, 2, 3]
+  }
+
+  template() {
+    return `
       <div>
-        { Array.from({ length: this.props.count }).map(_ => `I`) }
+        <span b-for="el in Array.from({ length: props.count })">
+          I
+        </span>
       </div>
-    )
+    `
   }
 }
 
@@ -70,17 +74,22 @@ class Greeting {
   async loadData() {
     const result = await this.$ajax.request({
       method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/posts',
+      url: 'http://dummy.restapiexample.com/api/v1/employees',
     });
 
     this.setState({
-      albums: [...result.data],
+      albums: [...result.data.data],
     });
   }
 
   state = {
-    albums: []
+    albums: [
+    ]
   };
+
+  components = {
+    Album
+  }
 
   remove(id) {    
     const albums = this.state.albums;
@@ -93,46 +102,31 @@ class Greeting {
     });
   }
 
-  render() {
-    return (
+  template() {
+    return `
       <div>
         <div>
-          <button
-            onClick={() => {
-              this.loadData();
-            }}
-          >
-            Load data
-          </button>
-          {this.state.albums.map((album) => (
-            <Album key={album.id} url={album.url} title={album.body} />
-          ))}
+          <button @click="loadData()">Load data</button>
+          <Album b-for="album in state.albums" :key="album.id" :title="album.employee_name"></Album>
         </div>
       </div>
-    );
+    `
   }
 }
 
 class Child {
   state = {
-    msg: 'Hello, world!'
+    msg: 'Hello, world!',
+    n: Math.random()
   }
 
   template() {
     return `
       <div>
-        <span> {{ props.key }} </span>
+        <span> {{ props.key }} text text {{ state.msg }} more text {{ state.n }} TEEXT </span>
       </div>
     `
   }
-
-  // render() {
-  //   return (
-  //     <div>
-  //       <span> { this.props.key } </span>
-  //     </div>
-  //   )
-  // }
 }
 
 class About {
@@ -152,19 +146,11 @@ class About {
     return `
       <div>
         <h2 title="foo" id="bar">FOO</h2>
-        <Child :key="state.variable" />
+        <Child :key="state.variable + 1"></Child>
+        <Child :key="state.variable + 2"></Child>
       </div>
     `
   }
-
-  // render() {
-  //   return (
-  //     <div>
-  //       <h2 title="foo" id="bar">FOO</h2>
-  //       <Child key={this.state.variable} />
-  //     </div>
-  //   );
-  // }
 }
 
 class App {
@@ -177,26 +163,25 @@ class App {
     this.$router.go(url);
   }
 
-  render() {
-    return (
-      <div className='THIS'>
-        <button onClick={() => {
-          this.go('/example/greeting');
-        }}>
+  components = {
+    Wrapper,
+    'Iris.Router': Iris.Router
+  }
+
+  template() {
+    return `
+      <div className="THIS">
+        <button @click="go('/example/greeting')">
           Greeting
         </button>
-        <button onClick={() => {
-          this.go('/example/about');
-        }}>
+        <button @click="go('/example/about')">
           About
         </button>
-        <Wrapper />
-        <button>
-          { this.state.n }
-        </button>
-        <Iris.Router />
+        <Wrapper></Wrapper>
+        <button> {{ state.n }} </button>
+        <Iris.Router></Iris.Router>
       </div>
-    );
+    `
   }
 }
 
