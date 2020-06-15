@@ -22,7 +22,7 @@ import { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
 import extractKeyIdPair from './util/ids-keys';
 import getPrototype from '@/util/get-prototype';
 import extend from './util/extend';
-import stringToHyperscript from '@/parse/string-to-hyperscript';
+import stringToHyperscript from '@/parse';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -33,8 +33,6 @@ class VNode {
   tagName: string | TInstantiable<Component>;
   props: IIterable<any> | null;
   children: VNode[] | string[];
-
-  parent?: VNode;
 
   key?: string;
   component?: Component;
@@ -71,7 +69,7 @@ class VNode {
        * Extending the component's prototype,
        * considering, that it's not inheriting from Iris.Component.
        */
-      extend(Constructor, Component as TInstantiable<Component>);
+      extend(Constructor.prototype, Component.prototype);
 
       /**
        * key - is given by the user.
@@ -192,11 +190,13 @@ class VNode {
     var $root = document.createElement(this.tagName as string);
 
     if (this.isComponent()) {
+      const component: Component = this.component as Component;
+
       /**
        * There's only one case if component doesn't have a parent.
        * If it's an app itself.
        */
-      if (!(this.component as Component).parent) {
+      if (!component.parent) {
         if (this.props) {
           const { parent } = this.props;
 
@@ -206,33 +206,18 @@ class VNode {
             );
 
             if (match) {
-              (this.component as Component).parent = match.instance;
+              component.parent = match.instance;
             }
           }
         }
 
-        if (!(this.component as any).parent && Iris.vApp.component) {
-          (this.component as Component).parent = Iris.vApp.component;
+        if (!component.parent && Iris.vApp.component) {
+          component.parent = Iris.vApp.component;
         }
       }
-    }
 
-    if (this.isComponent()) {
-      if ((this.component as Component).lastRender) {
-        for (const [attribute, value] of Object.entries(((this.component as Component).lastRender as VNode).props as IIterable<any>)) {
-          if (attribute.startsWith('on')) {
-            addListener($root, attribute.replace('on', '').toLocaleLowerCase(), value);
-          } else {
-            /**
-             * Checking if it's a valid HTML attribute.
-             */
-            const exists = attribute in $root;
-    
-            if (exists) {
-              $root.setAttribute(attribute !== 'className' ? attribute : 'class', value);
-            }
-          }
-        }
+      if (component.lastRender) {
+        extend(this.props, component.lastRender.props);
       }
     }
 

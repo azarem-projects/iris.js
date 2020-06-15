@@ -1,11 +1,14 @@
-function extend(targetCtor: any, Ctor: typeof Component) {
-  const keys = Object.getOwnPropertyNames(Ctor.prototype);
+function extend(target: any, image: any) {
+  const bunch = [
+    ...Object.getOwnPropertyNames(image),
+    ...Object.keys(image)
+  ]
 
-  for (var i = 0; i < keys.length; i++) {
-    const key = keys[i];
+  for (var i = 0; i < bunch.length; i++) {
+    const key = bunch[i];
 
-    if (!targetCtor.prototype[key]) {
-      targetCtor.prototype[key] = (Ctor.prototype as any)[keys[i]];
+    if (!target[key]) {
+      target[key] = image[key];
     }
   }
 }

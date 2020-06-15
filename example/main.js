@@ -6,7 +6,7 @@ class Album {
   render() {
     return `
       <div>
-        <div className="row">
+        <div class="row">
           {{ props.title }}
           <button @click="remove()">Remove</button>
           {{ props['album-id'] }}
@@ -141,10 +141,34 @@ class About {
 
   render() {
     return `
-      <div className="foobar">
+      <div class="foobar">
         <h2 title="foo" id="bar">FOO</h2>
         <Child :key="state.variable + 1"></Child>
         <Child :key="state.variable + 2"></Child>
+      </div>
+    `
+  }
+}
+
+class MyInput {
+  state = {
+    value: 0
+  }
+
+  handleChange() {
+    this.setState({
+      value: event.target.value || 0
+    })
+  }
+
+  render() {
+    return `
+      <div>
+        {{ state.value }}
+        <input @input="handleChange()" />
+        <div b-for="(el, i) in Array.from({ length: state.value })" :key="i">
+          {{ i }}. Hello!
+        </div>
       </div>
     `
   }
@@ -162,12 +186,13 @@ class App {
 
   components = {
     Wrapper,
+    MyInput,
     'Iris.Router': Iris.Router
   }
 
   render() {
     return `
-      <div className="THIS">
+      <div class="THIS">
         <button @click="go('/example/greeting')">
           Greeting
         </button>
@@ -175,6 +200,7 @@ class App {
           About
         </button>
         <Wrapper></Wrapper>
+        <MyInput></MyInput>
         <button> {{ state.n }} </button>
         <Iris.Router></Iris.Router>
       </div>
