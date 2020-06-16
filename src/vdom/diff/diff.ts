@@ -14,7 +14,7 @@ function diff(oTree: VNode, nTree: VNode) {
 }
 
 function dfsWalk(oNode: VNode, nNode: VNode, index: number, patches: any) {
-  const currentPatch = [];
+  const currentPatch: any[] = [];
 
   if (nNode === null) return;
 

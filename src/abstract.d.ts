@@ -73,6 +73,11 @@ declare global {
     static hook: (component: Component, hook: string, options?: IHookOptions) => void;
   }
 
+  interface IChildEvent {
+    childEvent: string;
+    parentEvent: string;
+  }
+
   class Component {
     id?: string;
     props?: IIterable<any> | undefined | null;
@@ -85,6 +90,8 @@ declare global {
     parent?: Component;
   
     $onInitFired: boolean;
+
+    childEvents: any[];
 
     components?: (typeof Component)[];
 

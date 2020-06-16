@@ -4,6 +4,7 @@ import VNode from '@/vdom/vnode';
 import diff from '@/vdom/diff/diff';
 import patch from '@/vdom/patch';
 import Iris from './iris';
+import hook from '@/util/hooks';
 
 /**
  * Iris.Component
@@ -27,9 +28,7 @@ abstract class Component {
 
   $onInitFired: boolean = false;
 
-  constructor(props: IIterable<any>) {
-    this.props = props;
-  }
+  childEvents: IChildEvent[] = [];
 
   /**
    * Hyperscript.
@@ -41,6 +40,10 @@ abstract class Component {
    * Hooks.
    */
   onInit() {}
+
+  init() {
+    this.childEvents = [];
+  }
 
   /**
    * Updates the states, re-renders the component.
@@ -63,6 +66,8 @@ abstract class Component {
     this.lastRender = updated;
 
     patch(this.$root, patches);
+
+    hook(this, 'onUpdate');
   }
 
   /**
@@ -88,11 +93,21 @@ abstract class Component {
   dispatch(event: string, message: IIterable<any> | any) {    
     if (!this.parent) { return; }
 
-    const callback = getProto(this.parent)[event];
+    const callbackName = this.parent.childEvents.find(item => item.childEvent === event)?.parentEvent;
+    
+    if (!callbackName) { return; }
 
-    if (!callback) { return; }
+    if (callbackName.startsWith('set-')) {
+      const variable = callbackName.replace('set-', '');
 
-    callback.call(this.parent, message);
+      this.parent.setState({ [variable]: message });
+    } else {
+      const callback = getProto(this.parent)[callbackName];
+  
+      if (!callback) { return; }
+  
+      callback.call(this.parent, message);
+    }
   }
 }
 

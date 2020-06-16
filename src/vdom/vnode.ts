@@ -103,6 +103,8 @@ class VNode {
         }
       }
 
+      this.component.init();
+
       this.component.setProps(props);
 
       this.component.extendScope(Iris.toInject);

@@ -5,6 +5,7 @@ import isValid from './is-valid';
 import computeProperties from './compute-properties';
 import countMatches from '@/util/string/count-matches';
 import { hasUpperCase, markUpperCase, RESTORING_KEY } from './property-cases';
+import removeSelfClosingTags from './remove-self-closing-tags';
 
 const TAG_NAME = 'TAG_NAME';
 const PROPS = 'PROPS';
@@ -12,30 +13,32 @@ const CHILDREN = 'CHILDREN';
 const TEMPLATE = `Iris.createElement(${TAG_NAME},${PROPS},${CHILDREN})`;
 
 function stringToHyperscript(input: string, context: Component) {
-  var $el: Element = document.createElement('div');
+  var el: Element = document.createElement('div');
 
-  const props = (input.match(/\b\s(.*?)\b=/gm) || []).map(el => el.replace('=', ''));
+  const props = (input.match(/\b\s(.*?)\b=/gm) || []).map((el) => el.replace('=', ''));
   const marked = [];
+
+  input = removeSelfClosingTags(input);
 
   for (let i = 0; i < props.length; i++) {
     const count = countMatches(props[i], ' ');
 
     const prop = props[i].split(' ')[count];
-    
+
     if (hasUpperCase(prop)) {
       marked.push({
         original: prop,
-        marked: markUpperCase(prop, RESTORING_KEY)
+        marked: markUpperCase(prop, RESTORING_KEY),
       });
     }
   }
 
   for (let i = 0; i < marked.length; i++) {
-    input = replaceAll(input, [` ${marked[i].original}=`, ` ${marked[i].marked}=`])
+    input = replaceAll(input, [` ${marked[i].original}=`, ` ${marked[i].marked}=`]);
   }
 
-  $el.innerHTML = input;
-  $el = $el.firstElementChild as Element;
+  el.innerHTML = input;
+  el = el.firstElementChild as Element;
 
   function iterate(el: Element, item?: any) {
     let result = TEMPLATE;
@@ -100,7 +103,7 @@ function stringToHyperscript(input: string, context: Component) {
     return result;
   }
 
-  const result = 'return function render() { return ' + iterate($el) + '}';
+  const result = 'return function render() { return ' + iterate(el) + '}';
 
   return Function(result);
 }
