@@ -3,6 +3,10 @@ class CustomInput {
     this.dispatch('set-model', event.target.checked);
   }
 
+  onInit() {
+    console.log(this.props);
+  }
+
   render() {
     return /* html */ `
       <div>
@@ -31,4 +35,7 @@ class App {
   }
 }
 
-Iris.mount(Iris.createElement(App), '#root');
+Iris.mount(
+  App,
+  '#root'
+);

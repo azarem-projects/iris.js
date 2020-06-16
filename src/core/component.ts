@@ -66,8 +66,6 @@ abstract class Component {
     this.lastRender = updated;
 
     patch(this.$root, patches);
-
-    hook(this, 'onUpdate');
   }
 
   /**

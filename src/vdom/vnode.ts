@@ -1,3 +1,7 @@
+import Iris from '@/core/iris';
+
+import { createElement } from '@/vdom';
+
 import {
   isObject,
   isString,
@@ -11,18 +15,16 @@ import { addListener } from '@/vdom/util/listeners';
 
 import { NOKEY } from '@/vdom/diff/operations';
 
-import Iris from '@/core/iris';
-
 import modifyRender from '@/vdom/render/modify-render';
 
 import Component from '@/core/component';
 
 import { ON_INIT, BEFORE_RENDER } from '@/util/hooks';
 
-import extractKeyIdPair from './util/ids-keys';
 import getPrototype from '@/util/get-prototype';
-import extend from './util/extend';
 import stringToHyperscript from '@/parse';
+import extractKeyIdPair from '@/vdom/util/ids-keys';
+import extend from '@/vdom/util/extend';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -75,12 +77,12 @@ class VNode {
 
       /**
        * key - is given by the user.
-       * _id - is set programmatically.
+       * parent - is set programmatically.
        */
       const { key, parent } = extractKeyIdPair(props);
 
       /**
-       * Attempt to find an existing instance of the component by its key and _id.
+       * Attempt to find an existing instance of the component by its key.
        */
       if (!key) {
         this.component = new Constructor();
@@ -109,39 +111,32 @@ class VNode {
 
       this.component.extendScope(Iris.toInject);
 
-      if (!getPrototype<Component>(Constructor).$render) {
+      // Old-0
+      if (!this.component.$render) {
         const renderResult = this.component.render.apply(this.component, <[]>(
           (<any>[Iris.createElement])
         ));
 
         if (isString(renderResult)) {
-          getPrototype<Component>(Constructor).$render = stringToHyperscript(
-            renderResult as string,
-            this.component
-          )();
+          this.component.$render = stringToHyperscript(renderResult as string, this.component)();
         } else {
-          getPrototype<Component>(Constructor).$render = this.component.render as (
-            h?: THyperscript
-          ) => VNode;
+          this.component.$render = this.component.render as (h?: THyperscript) => VNode;
         }
       }
 
       /**
        * Modifying the render function provided by the user.
-       * Each component declaration gets a specific computed id
-       * based on its path and eventually key.
+       * Each component declaration gets a parent and eventually a key.
+       *
+       * Old-1
        */
-      if (!getPrototype<Component>(Constructor).$render.toString().includes('___mod')) {
-        getPrototype<Component>(Constructor).$render = modifyRender(
-          this.component.$render,
-          name,
-          key
-        );
+      if (!this.component.$render.toString().includes('___mod')) {
+        this.component.$render = modifyRender(this.component.$render, name, key);
       }
 
-      this.component.lastRender = this.component.$render.apply(this.component, <[]>(
-        (<any>[Iris.createElement])
-      )) as VNode;
+      this.component.lastRender = this.component.$render.apply(this.component, [
+        createElement as THyperscript,
+      ]) as VNode;
 
       this.component.vNode = this;
 
@@ -167,17 +162,19 @@ class VNode {
     /**
      * Counting children to be able
      * to identify them whithin a vnode.
+     * 
+     * Old-2
      */
     var count = 0;
 
-    arrForEach(this.children, (item: VNode, index: number) => {
-      if (item instanceof VNode) {
-        count += item.count;
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i] instanceof VNode) {
+        count += (this.children[i] as VNode).count;
       } else {
-        this.children[index] = '' + item;
+        this.children[i] = '' + this.children[i];
       }
       count++;
-    });
+    }
 
     this.count = count;
   }
@@ -189,7 +186,7 @@ class VNode {
     var $root = document.createElement(this.tagName as string);
 
     if (this.isComponent()) {
-      const component: Component = this.component as Component;
+      const component = this.component as Component;
 
       /**
        * There's only one case if component doesn't have a parent.
@@ -268,13 +265,15 @@ class VNode {
     });
 
     if (this.isComponent()) {
-      if (!(this.component as any).$onInitFired) {
-        Iris.hook(this.component as any, ON_INIT);
+      const component = this.component as Component;
 
-        (this.component as any).$onInitFired = true;
+      if (!component.$onInitFired) {
+        Iris.hook(component, ON_INIT);
+
+        component.$onInitFired = true;
       }
 
-      (this.component as any).$root = $root;
+      component.$root = $root;
     }
 
     return $root;

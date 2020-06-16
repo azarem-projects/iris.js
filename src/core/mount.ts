@@ -2,9 +2,13 @@ import VNode from '@/vdom/vnode';
 import Iris from '@/core/iris';
 import { isString } from '@/util/helpers';
 import { error } from '@/debug';
-import hook from '@/util/hooks';
+import { ON_INIT } from '@/util/hooks';
 
-export default function mount(vApp: VNode, target: string | Element) {
+function mount(vApp: VNode, target: string | Element) {
+  if (typeof vApp === 'function') {
+    vApp = Iris.createElement(vApp, null);
+  }
+
   const element = <Element> (isString(target) ? document.querySelector(target as string) : target);
 
   Iris.vApp = vApp;
@@ -18,11 +22,12 @@ export default function mount(vApp: VNode, target: string | Element) {
   }
   
   if (vApp.component) {
-    vApp.component.$prepared = true;
     vApp.component.$onInitFired = true;
     
-    hook(vApp.component, 'onInit');
+    Iris.hook(vApp.component, ON_INIT);
   }
 
   return vApp;
 }
+
+export default mount;
