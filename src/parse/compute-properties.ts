@@ -2,6 +2,7 @@ import replaceAll from '@/util/string/replace-all';
 import getPropType from './get-prop-type';
 import { append, wrap, prepend } from '@/util/string/modifying';
 import extractLoopParams from './extract-loop-params';
+import { restoreUpperCase, RESTORING_KEY } from './property-cases';
 
 function cast<T>(el: Element) {
   return el as any as T;
@@ -15,7 +16,8 @@ function computeProperties(el: Element, result: string, context: Component) {
   var handledResult = result;
 
   for (let i = 0; i < el.attributes.length; i++) {
-    const name = el.attributes[i].name;
+    const name = restoreUpperCase(el.attributes[i].name, RESTORING_KEY);
+
     const value = replaceAll(
       el.attributes[i].value,
       ['state', 'this.state'],

@@ -32,6 +32,7 @@ class Wrapper {
   render() {
     return `
       <span>
+        {{ props.myOwnProp }}
         <VisibleCounter :count="state.count"></VisibleCounter>
         <button @click="plus()">Click ME</button>
       </span>
@@ -46,7 +47,7 @@ class VisibleCounter {
 
   render() {
     return `
-      <div>
+      <div class="row">
         <span i-for="el in Array.from({ length: props.count })">
           I
         </span>
@@ -235,7 +236,7 @@ class App {
         <button @click="go('/example/about')">
           About
         </button>
-        <Wrapper></Wrapper>
+        <Wrapper myOwnProp="25"></Wrapper>
         <Checkbox></Checkbox>
         <MyInput></MyInput>
         <button> {{ state.n }} </button>

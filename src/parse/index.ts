@@ -3,21 +3,42 @@ import { wrap } from '@/util/string/modifying';
 
 import isValid from './is-valid';
 import computeProperties from './compute-properties';
+import countMatches from '@/util/string/count-matches';
+import { hasUpperCase, markUpperCase, RESTORING_KEY } from './property-cases';
 
 const TAG_NAME = 'TAG_NAME';
 const PROPS = 'PROPS';
 const CHILDREN = 'CHILDREN';
-
-const template = `Iris.createElement(${TAG_NAME},${PROPS},${CHILDREN})`;
+const TEMPLATE = `Iris.createElement(${TAG_NAME},${PROPS},${CHILDREN})`;
 
 function stringToHyperscript(input: string, context: Component) {
   var $el: Element = document.createElement('div');
+
+  const props = (input.match(/\b\s(.*?)\b=/gm) || []).map(el => el.replace('=', ''));
+  const marked = [];
+
+  for (let i = 0; i < props.length; i++) {
+    const count = countMatches(props[i], ' ');
+
+    const prop = props[i].split(' ')[count];
+    
+    if (hasUpperCase(prop)) {
+      marked.push({
+        original: prop,
+        marked: markUpperCase(prop, RESTORING_KEY)
+      });
+    }
+  }
+
+  for (let i = 0; i < marked.length; i++) {
+    input = replaceAll(input, [` ${marked[i].original}=`, ` ${marked[i].marked}=`])
+  }
 
   $el.innerHTML = input;
   $el = $el.firstElementChild as Element;
 
   function iterate(el: Element, item?: any) {
-    let result = template;
+    let result = TEMPLATE;
 
     const tagName = el?.tagName;
 
