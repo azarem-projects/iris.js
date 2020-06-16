@@ -1,9 +1,15 @@
 import replaceAll from '@/util/string/replace-all';
 import getPropType from './get-prop-type';
-import { append, wrap } from '@/util/string/modifying';
+import { append, wrap, prepend } from '@/util/string/modifying';
 import extractLoopParams from './extract-loop-params';
 
-function computeProperties(el: Element, result: string) {
+function cast<T>(el: Element) {
+  return el as any as T;
+}
+
+function computeProperties(el: Element, result: string, context: Component) {
+  const inputType = cast<HTMLInputElement>(el).type;
+
   var output = '{';
 
   var handledResult = result;
@@ -16,31 +22,61 @@ function computeProperties(el: Element, result: string) {
       ['props', 'this.props']
     );
 
-    const { dynamic, event, loop } = getPropType(name);
+    const { dynamic, event, loop, model } = getPropType(name);
 
     if (dynamic) {
+
       output = append(output, `"${name.replace(':', '')}":`);
       output = append(output, dynamic ? `${value}` : `"${value}"`);
-    } else if (event) {
-      const _event = name.split('.')[0];
-      const _modifier = name.split('.')[1];
 
-      const _modifiers: IIterable<string> = {
-        'prevent': 'event.preventDefault();',
-        'stop': 'event.stopPropagation();',
+    } else if (event) {
+
+      const event = name.split('.')[0];
+      const modifier = name.split('.')[1];
+
+      const modifiers: IIterable<string> = {
+        prevent: 'event.preventDefault();',
+        stop: 'event.stopPropagation();',
       }
 
-      output = append(output, `"on${_event.replace('@', '')}":`);
+      output = append(output, `"on${event.replace('@', '')}":`);
       output = append(
         output,
-        `() => { ${_modifier ? _modifiers[_modifier] : ''} this.${value.includes('(') ? value : append(value, '()')} }`
+        `() => { ${modifier ? modifiers[modifier] : ''} this.${value.includes('(') ? value : append(value, '()')} }`
       );
+
     } else if (loop) {
+
       const { variable, iterator, bunch } = extractLoopParams(value);
       handledResult = `${bunch}.map((${variable} ${iterator ? `,${iterator}` : ''}) => ${result})`;
+
+    } else if (model) {
+
+      const events: IIterable<string> = {
+        text: 'oninput',
+        checkbox: 'onclick',
+      }
+
+      const values: IIterable<string> = {
+        text: 'value',
+        checkbox: 'checked',
+      }
+
+      const matchEvent = events[inputType];
+      const matchValue = values[inputType];
+
+      output = append(output, append(wrap(matchValue), ':'));
+      output = append(output, prepend(value, 'this.state.'));
+      output = append(output, ',');
+      
+      output = append(output, append(wrap(matchEvent), ':'));
+      output = append(output, `() => { this.setState({ ${value}: event.target.${matchValue} }) }`);
+
     } else {
+
       output = append(output, append(wrap(name), ':'));
       output = append(output, wrap(value));
+
     }
 
     output = append(output, ',');

@@ -53,6 +53,18 @@ function dfsWalk(oNode: VNode, nNode: VNode, index: number, patches: any) {
 }
 
 function diffChildren(oChildren: VNode[], nChildren: VNode[], index: number, patches: any, currentPatch: any) {
+
+  /**
+   * If a text node becomes empty we want to prevent it from being removed.
+   */
+  for (var i = 0; i < oChildren.length; i++) {
+    if (isString(oChildren[i])) {
+      if (!nChildren[i]) {
+        nChildren[i] = ' ' as any;
+      }
+    }
+  }
+
   const diffs = listDiff(oChildren, nChildren, 'key');
 
   nChildren = diffs.children;
@@ -63,6 +75,7 @@ function diffChildren(oChildren: VNode[], nChildren: VNode[], index: number, pat
   let currentNodeIndex = index;
   arrForEach(oChildren, (_item: VNode, _index: any) => {
     const nChild: VNode = nChildren[_index];
+
     currentNodeIndex = leftNode && leftNode.count ? currentNodeIndex + leftNode.count + 1 : currentNodeIndex + 1;
     _item !== nChild && dfsWalk(_item, nChild, currentNodeIndex, patches);
     leftNode = _item;

@@ -2,7 +2,8 @@ function getPropType(name: string) {
   return {
     dynamic: name.includes(':'),
     event: name.includes('@'),
-    loop: name.includes('b-for'),
+    loop: name.includes('i-for'),
+    model: name.includes('i-model')
   }
 }
 

@@ -47,9 +47,11 @@ function setAttr(node: any, key: any, value: any) {
       break;
     case 'checked':
       if (value === true) {
-        node.setAttribute(key, '');
+        node.setAttribute(key, 'true');
+        node.checked = true;
       } else {
         node.removeAttribute(key);
+        node.checked = false;
       }
       break;
     default:

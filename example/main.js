@@ -47,7 +47,7 @@ class VisibleCounter {
   render() {
     return `
       <div>
-        <span b-for="el in Array.from({ length: props.count })">
+        <span i-for="el in Array.from({ length: props.count })">
           I
         </span>
       </div>
@@ -107,7 +107,7 @@ class Greeting {
     return `
       <div>
         <button @click="loadData()">Load data</button>
-        <Album b-for="(album, i) in state.albums" :key="album.id" :title="album.employee_name" :album-id="i"></Album>
+        <Album i-for="(album, i) in state.albums" :key="album.id" :title="album.employee_name" :album-id="i"></Album>
       </div>
     `
   }
@@ -166,7 +166,7 @@ class MyInput {
       <div>
         {{ state.value }}
         <input @input="handleChange()" />
-        <div b-for="(el, i) in Array.from({ length: state.value })" :key="i">
+        <div i-for="(el, i) in Array.from({ length: state.value })" :key="i">
           {{ (i + 1) }}. Hello!
         </div>
       </div>
@@ -176,7 +176,8 @@ class MyInput {
 
 class Checkbox {
   state = {
-    value: false
+    value: false,
+    model: '25'
   }
   
   check() {
@@ -194,8 +195,15 @@ class Checkbox {
   render() {
     return `
       <div>
-        <input type="checkbox" @click.stop="handleChange()" :checked="state.value" />
-        <input type="button" value="Check" @click="check()" />
+        <div>
+          {{ state.value }}
+          <input type="checkbox" i-model="value" />
+          <input type="button" value="Check" @click="check()" />
+        </div>
+        <div>
+          {{ state.model }}
+          <input i-model="model" placeholder="i-model" />
+        </div>
       </div>
     `
   }

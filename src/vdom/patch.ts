@@ -1,6 +1,5 @@
 import { isString, isObject, objForEach, arrForEach, setAttr, toArray } from '@/util/helpers';
 import { REPLACE, REORDER, PROPS, TEXT, NOKEY } from '@/vdom/diff/operations';
-import Iris from '@/core/iris';
 
 function patch(node: any, patches: any) {
   const walker = { index: 0 };

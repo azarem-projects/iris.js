@@ -40,7 +40,7 @@ function stringToHyperscript(input: string, context: Component) {
     var components: IIterable<any> = {};
 
     for (const [key, value] of Object.entries((context.components as any) || {})) {
-      components[key.toLowerCase()] = { old: key, value };
+      components[key.toLowerCase()] = { key, value };
     }
 
     const tagIsValid = isValid(tagName.toLowerCase());
@@ -51,11 +51,11 @@ function stringToHyperscript(input: string, context: Component) {
       const isComponent = tagName.toLowerCase() in components;
 
       if (isComponent) {
-        result = result.replace(TAG_NAME, `${components[tagName.toLowerCase()].old}`);
+        result = result.replace(TAG_NAME, `${components[tagName.toLowerCase()].key}`);
       }
     }
 
-    const { propString, handledResult } = computeProperties(el, result);
+    const { propString, handledResult } = computeProperties(el, result, context);
 
     result = handledResult;
 

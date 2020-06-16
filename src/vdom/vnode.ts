@@ -221,10 +221,8 @@ class VNode {
     /**
      * If an attribute starts with 'on', it's an event.
      */
-    for (const [attribute, value] of Object.entries(this.props as IIterable<any>)) {
-      if (attribute.startsWith('on')) {
-        addListener($root, attribute.replace('on', '').toLocaleLowerCase(), value);
-      } else {
+    for (const [attribute, value] of Object.entries(this.props as IIterable<string | boolean>)) {
+      if (!attribute.startsWith('on')) {
         /**
          * Checking if it's a valid HTML attribute.
          */
@@ -243,6 +241,12 @@ class VNode {
         if (exists) {
           $root.setAttribute(attribute !== 'className' ? attribute : 'class', value);
         }
+      }
+    }
+
+    for (const [attribute, value] of Object.entries(this.props as IIterable<string>)) {
+      if (attribute.startsWith('on')) {
+        addListener($root, attribute.replace('on', '').toLocaleLowerCase(), value);
       }
     }
 
