@@ -81,9 +81,9 @@ abstract class Component {
   /**
    * Extending "this"-scope of the component.
    */
-  extendScope(item: IIterable<any>) {
+  extendScope(this: IIterable<any>, item: IIterable<any>) {
     for (const [key, value] of Object.entries(item)) {
-      (this as IIterable<any>)[key] = value;
+      this[key] = value;
     }
   }
 

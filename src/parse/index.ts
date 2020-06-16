@@ -1,11 +1,10 @@
 import replaceAll from '@/util/string/replace-all';
 import { wrap } from '@/util/string/modifying';
 
-import isValid from './is-valid';
+import isValid from './util/is-valid';
 import computeProperties from './compute-properties';
-import countMatches from '@/util/string/count-matches';
-import { hasUpperCase, markUpperCase, RESTORING_KEY } from './property-cases';
-import removeSelfClosingTags from './remove-self-closing-tags';
+import removeSelfClosingTags from './util/remove-self-closing-tags';
+import markProps from './util/mark-props';
 
 const TAG_NAME = 'TAG_NAME';
 const PROPS = 'PROPS';
@@ -13,34 +12,20 @@ const CHILDREN = 'CHILDREN';
 const TEMPLATE = `Iris.createElement(${TAG_NAME},${PROPS},${CHILDREN})`;
 
 function stringToHyperscript(input: string, context: Component) {
-  var el: Element = document.createElement('div');
-
-  const props = (input.match(/\b\s(.*?)\b=/gm) || []).map((el) => el.replace('=', ''));
-  const marked = [];
+  var el: HTMLElement = document.createElement('div');
 
   input = removeSelfClosingTags(input);
 
-  for (let i = 0; i < props.length; i++) {
-    const count = countMatches(props[i], ' ');
-
-    const prop = props[i].split(' ')[count];
-
-    if (hasUpperCase(prop)) {
-      marked.push({
-        original: prop,
-        marked: markUpperCase(prop, RESTORING_KEY),
-      });
-    }
-  }
+  const marked = markProps(input);
 
   for (let i = 0; i < marked.length; i++) {
     input = replaceAll(input, [` ${marked[i].original}=`, ` ${marked[i].marked}=`]);
   }
 
   el.innerHTML = input;
-  el = el.firstElementChild as Element;
+  el = el.firstElementChild as HTMLElement;
 
-  function iterate(el: Element, item?: any) {
+  function iterate(el: HTMLElement, item?: any) {
     let result = TEMPLATE;
 
     const tagName = el?.tagName;
@@ -87,16 +72,17 @@ function stringToHyperscript(input: string, context: Component) {
 
     var children: any[] = [];
 
-    childNodes.forEach((node) => {
-      const child = iterate(node as Element, item);
-      children.push(child);
-    });
+    for (let i = 0; i < childNodes.length; i++) {
+      const child = iterate(childNodes[i] as HTMLElement, item);
 
-    children.forEach((child) => {
-      if (!!child.split("'").join('').trim()) {
-        result = result.replace(`,${CHILDREN}`, `,${child},${CHILDREN}`);
+      children.push(child);
+    }
+
+    for (let i = 0; i < children.length; i++) {
+      if (!!children[i].split("'").join('').trim()) {
+        result = result.replace(`,${CHILDREN}`, `,${children[i]},${CHILDREN}`);
       }
-    });
+    }
 
     result = result.replace(`,${CHILDREN}`, '');
 

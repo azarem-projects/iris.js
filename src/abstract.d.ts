@@ -100,6 +100,7 @@ declare global {
     $render(h?: THyperscript): VNode | void;
     render(h?: THyperscript): VNode | string | void;
     onInit(): void;
+    init(): void;
     setState(newState: IIterable<any>): void;
     forceUpdate(): void;
     setProps(props: IIterable<any> | undefined | null): void;

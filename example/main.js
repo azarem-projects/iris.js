@@ -1,13 +1,3 @@
-class Component1 {
-  render() {
-    return /* html */ `
-      <div>
-        Component 1
-      </div>
-    `
-  }
-}
-
 class CustomInput {
   handleInput() {
     this.dispatch('set-model', event.target.checked);
@@ -28,12 +18,7 @@ class App {
   }
 
   components = {
-    Component1,
     CustomInput
-  }
-
-  sayHi(arg) {
-    console.log(arg);
   }
 
   render() {

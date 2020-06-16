@@ -2,7 +2,7 @@
  * Iris.js - a modern lightweight minimalist javascript
  *  framework for creating user interfaces.
  */
-import VNode, { createElement } from '@/vdom/vnode';
+import { VNode, createElement } from '@/vdom';
 import Plugin from '@/plugins/plugin';
 import Component from '@/core/component';
 import Components from '@/static/components';

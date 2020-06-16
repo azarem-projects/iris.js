@@ -1,8 +1,8 @@
 import replaceAll from '@/util/string/replace-all';
-import getPropType from './get-prop-type';
+import getPropType from './util/get-prop-type';
 import { append, wrap, prepend } from '@/util/string/modifying';
-import extractLoopParams from './extract-loop-params';
-import { restoreUpperCase, RESTORING_KEY } from './property-cases';
+import extractLoopParams from './util/extract-loop-params';
+import { restoreUpperCase, RESTORING_KEY } from './util/property-cases';
 
 function computeProperties(el: Element, result: string, component: Component) {
   var output = '{';
@@ -18,7 +18,14 @@ function computeProperties(el: Element, result: string, component: Component) {
       ['props', 'this.props']
     );
 
-    const { dynamic, event, loop, model, conditional, customEvent } = getPropType(name);
+    const {
+      dynamic,
+      event,
+      loop,
+      model,
+      conditional,
+      customEvent
+    } = getPropType(name);
 
     if (dynamic) {
       output = append(output, `"${name.replace(':', '')}":`);
@@ -75,16 +82,14 @@ function computeProperties(el: Element, result: string, component: Component) {
           `() => { this.setState({ ${value}: event.target.${matchValue} }) }`
         );
       } else {
-
         output = append(output, append(wrap('model'), ':'));
         output = append(output, prepend(value, 'this.state.'));
         output = append(output, ',');
 
         component.childEvents.push({
           childEvent: 'set-model',
-          parentEvent: `set-${value}`
+          parentEvent: `set-${value}`,
         });
-
       }
     } else if (customEvent) {
       const childEvent = name.split(':')[1];
@@ -92,9 +97,8 @@ function computeProperties(el: Element, result: string, component: Component) {
 
       component.childEvents.push({
         childEvent,
-        parentEvent
+        parentEvent,
       });
-
     } else {
       output = append(output, append(wrap(name), ':'));
       output = append(output, wrap(value));
