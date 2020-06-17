@@ -1,8 +1,8 @@
-import Component from '@/core/component';
-
-class Empty extends Component {
-  $render(h: THyperscript) {
-    return h('div', null);
+class Empty {
+  render() {
+    return /* html */ `
+      <div></div>
+    `
   }
 }
 

@@ -19,7 +19,13 @@ class Router {
     });
   }
 
-  injectIntoComponent(): { $router: IRouter } {
+  declareGlobalComponents(): IIterable<any> {
+    return {
+      'Iris.Router': View
+    }
+  }
+
+  injectIntoComponent(): IIterable<IRouter> {
     return {
       $router: {
         go: this.go,
@@ -28,7 +34,7 @@ class Router {
     };
   }
 
-  injectIntoIris() {
+  injectIntoIris(): IIterable<any> {
     return {
       Router: View,
     };

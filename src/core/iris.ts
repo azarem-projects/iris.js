@@ -53,6 +53,11 @@ class Iris {
   static toInject: IIterable<any> = {};
 
   /**
+   * Global components declarations.
+   */
+  static globalComponents: IIterable<any> = {};
+
+  /**
    * The accessor to hyperscript.
    */
   static createElement: (
@@ -75,7 +80,7 @@ class Iris {
   /**
    * Placeholder for <div></div>
    */
-  static Empty: typeof Component;
+  static Empty: new () => any;
 
   static hook: (component: Component, hook: string, options?: IHookOptions) => void;
 }

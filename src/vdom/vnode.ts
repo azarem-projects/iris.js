@@ -25,6 +25,7 @@ import getPrototype from '@/util/get-prototype';
 import stringToHyperscript from '@/parse';
 import extractKeyIdPair from '@/vdom/util/ids-keys';
 import extend from '@/vdom/util/extend';
+import checkSelectorValidity from './util/check-selector-validity';
 
 /**
  * Virtual Node a.k.a Virtual Tree
@@ -113,11 +114,17 @@ class VNode {
 
       // Old-0
       if (!this.component.$render) {
-        const renderResult = this.component.render.apply(this.component, <[]>(
+        let renderResult = this.component.render.apply(this.component, <[]>(
           (<any>[Iris.createElement])
         ));
 
         if (isString(renderResult)) {
+          const isValidSelector = checkSelectorValidity(renderResult as string);
+
+          if (isValidSelector) {
+            renderResult = document.querySelector(renderResult as string)?.outerHTML || '';
+          }
+
           this.component.$render = stringToHyperscript(renderResult as string, this.component)();
         } else {
           this.component.$render = this.component.render as (h?: THyperscript) => VNode;
@@ -162,7 +169,7 @@ class VNode {
     /**
      * Counting children to be able
      * to identify them whithin a vnode.
-     * 
+     *
      * Old-2
      */
     var count = 0;

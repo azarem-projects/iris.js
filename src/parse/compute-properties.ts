@@ -27,6 +27,8 @@ function computeProperties(el: Element, result: string, component: Component) {
       customEvent
     } = getPropType(name);
 
+    let disableComma = false;
+
     if (dynamic) {
       output = append(output, `"${name.replace(':', '')}":`);
       output = append(output, dynamic ? `${value}` : `"${value}"`);
@@ -68,12 +70,18 @@ function computeProperties(el: Element, result: string, component: Component) {
         checkbox: 'checked',
       };
 
+      const casts: IIterable<string> = {
+        text: '.toString()',
+        checkbox: ''
+      }
+
       const matchEvent = events[inputType];
       const matchValue = values[inputType];
+      const matchCast = casts[inputType];
 
       if (matchEvent && matchValue) {
         output = append(output, append(wrap(matchValue), ':'));
-        output = append(output, prepend(value, 'this.state.'));
+        output = append(output, append(prepend(value, 'this.state.'), matchCast));
         output = append(output, ',');
 
         output = append(output, append(wrap(matchEvent), ':'));
@@ -99,15 +107,23 @@ function computeProperties(el: Element, result: string, component: Component) {
         childEvent,
         parentEvent,
       });
+
+      disableComma = true;
     } else {
       output = append(output, append(wrap(name), ':'));
       output = append(output, wrap(value));
     }
 
-    output = append(output, ',');
+    if (!disableComma) {
+      output = append(output, ',');
+    }
+
+    disableComma = false;
   }
 
   output = append(output, '}');
+
+  // console.log(output);
 
   output = replaceAll(
     output,

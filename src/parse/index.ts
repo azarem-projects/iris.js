@@ -6,6 +6,8 @@ import computeProperties from './compute-properties';
 import removeSelfClosingTags from './util/remove-self-closing-tags';
 import markProps from './util/mark-props';
 
+import Iris from '@/core/iris';
+
 const TAG_NAME = 'TAG_NAME';
 const PROPS = 'PROPS';
 const CHILDREN = 'CHILDREN';
@@ -48,7 +50,11 @@ function stringToHyperscript(input: string, context: Component) {
 
     var components: IIterable<any> = {};
 
-    for (const [key, value] of Object.entries((context.components as any) || {})) {
+    for (const [key, value] of Object.entries(context.components || {})) {
+      components[key.toLowerCase()] = { key, value };
+    }
+
+    for (const [key, value] of Object.entries(Iris.globalComponents || {})) {
       components[key.toLowerCase()] = { key, value };
     }
 

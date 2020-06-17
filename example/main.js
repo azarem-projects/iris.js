@@ -1,39 +1,62 @@
-class CustomInput {
-  handleInput() {
-    this.dispatch('set-model', event.target.checked);
-  }
-
-  onInit() {
-    console.log(this.props);
-  }
-
+class About {
   render() {
     return /* html */ `
       <div>
-        <input type="checkbox" @click="handleInput" :checked="props.model" />
+        About!
+      </div>
+    `
+  }
+}
+
+class Greeting {
+  render() {
+    return /* html */ `
+      <div>
+        Hello!
       </div>
     `
   }
 }
 
 class App {
-  state = {
-    input: true
-  }
-
-  components = {
-    CustomInput
+  nav(url) {
+    this.$router.go(url);
   }
 
   render() {
+    console.log('Render function called!');
+
     return /* html */ `
       <div>
-        <h3> {{ state.input }} </h3>
-        <CustomInput i-model="input" />
+        Other content
+        <button @click="nav('/example/greeting')">Greeting</button>
+        <button @click="nav('/example/about')">About</button>
+        <button @click="nav('/example/')">Home</button>
+        <Iris.Router />
       </div>
     `
   }
 }
+
+Iris.install(
+  new Router({
+    baseUrl: '/example',
+    routes: [
+      {
+        path: '/',
+        component: Iris.Empty
+      },
+      {
+        path: '/greeting',
+        component: Greeting
+      },
+      {
+        path: '/about',
+        component: About
+      }
+    ]
+  })
+)
 
 Iris.mount(
   App,

@@ -3,8 +3,7 @@ import VNode from '@/vdom/vnode';
 
 import diff from '@/vdom/diff/diff';
 import patch from '@/vdom/patch';
-import Iris from './iris';
-import hook from '@/util/hooks';
+import Iris from '@/core/iris';
 
 /**
  * Iris.Component
@@ -88,7 +87,7 @@ abstract class Component {
   /**
    * Sends a message to the parent.
    */
-  dispatch(event: string, message: IIterable<any> | any) {    
+  dispatch(event: string, message: IIterable<any> | any) {        
     if (!this.parent) { return; }
 
     const callbackName = this.parent.childEvents.find(item => item.childEvent === event)?.parentEvent;
